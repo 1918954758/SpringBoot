@@ -10,6 +10,9 @@ public class User {
     private String name;
     private Integer age;
 
+    private Pet pet;
+
+
     public User() {
     }
 
@@ -23,6 +26,7 @@ public class User {
         return "User{" +
                 "name='" + name + '\'' +
                 ", age=" + age +
+                ", pet=" + pet +
                 '}';
     }
 
@@ -40,5 +44,13 @@ public class User {
 
     public void setAge(Integer age) {
         this.age = age;
+    }
+
+    public Pet getPet() {
+        return pet;
+    }
+
+    public void setPet(Pet pet) {
+        this.pet = pet;
     }
 }
