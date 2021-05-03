@@ -1,7 +1,9 @@
 ## SpringBoot 容器功能
+
 ### 1. 组件添加
-- 之前Spring添加组件需要在xml中进行配置
-beans.xml
+
+- 之前Spring添加组件需要在xml中进行配置 beans.xml
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -20,8 +22,11 @@ beans.xml
 
 </beans>
 ```
+
 - 现在给springboot容器添加组件，是需要写一个类，给这个类标注@Configuration注解
+
 #### 1.1. @Configuration
+
 ```java
 /**
  * @name: MyConfig
@@ -54,24 +59,31 @@ public class MyConfig {
     }
 }
 ```
+
     > 测试组件，参见启动类中的打印
     > 配置类本身也是一个组件，也可以使用 run.getBean(MyConfig.class);来获取
 
 #### 1.2. @Configuration注解的两种模式
+
     - Full模式    @Configuration(proxyBeanMethods = true)
     - Lite模式    @Configuration(proxyBeanMethods = false)
     - 配置类组件之间无依赖关系用Lite模式，加速容器启动过程，减少判断
     - 配置类组件之间有依赖关系，方法会被调用得到之前单实例组件，用Full模式
+
 #### 1.3. @Bean、@Component、@Controller、@Service、@Repository
+
     - @Bean - 表示该方法是一个bean
     - @Component - 在类上表示该类是一个组件
     - @Controller - 表示是一个控制器
     - @Service - 表示是一个业务逻辑组件
     - @Repository - 表示是一个数据库层组件
+
 #### 1.4. @ComponentScan、@Import
+
     - @ComponentScan - 指定包扫描规则
     - @Import - 给容器导入一个组件，写在任意一个配置类中或者组件中都可以
         - 将指定类型的组件导入进来
+
 ```java
 @Import({User.class, DBHelper.class})
 @Configuration(proxyBeanMethods = true)  //告诉springboot，这是一个配置类
@@ -79,10 +91,12 @@ public class MyConfig {
     
 }       
 ```
+
 -
     -
         - 作用是调用导入的组建的无惨构造器，创建导入的组件
         - 验证导入的组件
+
 ```java
 class MainApplication{
     public static void main(String[] args) {
@@ -98,13 +112,16 @@ class MainApplication{
     }
 }
 ```
+
 ```properties
 # 运行结果
 com.zichen.boot.bean.User
 user01
 DBHelper组件 = [Ljava.lang.String;@62515a47
 ```
+
 #### 1.5. @Conditional
+
 **条件装配：满足Condition指定的条件，则进行组件注入**
 
 ![image-ConditionAnnotation](../image/ConditionAnnotation.png)
@@ -117,7 +134,9 @@ DBHelper组件 = [Ljava.lang.String;@62515a47
 **ConditionalOnWebApplication** - 当我们的应用是一个web应用的时候，才去注入组件
 **ConditionalOnNotWebApplication** - 当我们的应用不是一个web应用的时候，才去注入组件
 **ConditionalOnProperty** - 当配置文件中配置了某个属性的时候，才去注入组件
+
 - 以ConditionOnBean为例：
+
 ````java
 /**
  * 告诉springboot，这是一个springboot应用
@@ -135,11 +154,13 @@ public class MainApplication {
     }
 }
 ````
+
 ```properties
 # 测试结果
 容器中Tom组件：false
 容器中user01组件：true
 ```
+
 ```java
 @Import({User.class, DBHelper.class})
 @Configuration(proxyBeanMethods = true)  //告诉springboot，这是一个配置类
@@ -163,6 +184,7 @@ public class MyConfig {
     }
 }
 ```
+
 ```properties
 # 再次启动启动类，执行结果是：
 容器中Tom组件：true
@@ -173,18 +195,24 @@ public class MyConfig {
 容器中user01组件：true
 ```
 
-**根据上面的测试，给user01组件加上@ConditionalOnBean(MyConfig.class)注解，表明，如果容器中有MyConfig组件，则注入user01组件，如果没有DataSource组件，则不注入user01组件**
+**根据上面的测试，给user01组件加上@ConditionalOnBean(MyConfig.class)
+注解，表明，如果容器中有MyConfig组件，则注入user01组件，如果没有DataSource组件，则不注入user01组件**
 **使用@ConditionalOnBean(name="tom")测试结果是，只要方法上加了该注解，就不会将该方法注入，不管tom组件是否存在，都不会注入**
 **也可以将@ConditionalOnBean注解加到配置类上，表示，满足条件的时候，配置类中的所有组件都注入，不满足条件的时候，配置类中的所有组件都不注入**
+
 ### 2. 原生配置文件引入
+
 #### 2.1. @ImportResource - 导入资源
+
     当我们需要将beans.xml中的bean引入的时候，我们可以使用@ImportResource注解来导入
+
 ```java
 @ImportResource("classpath:beans.xml")
 public class MyConfig {
     ...
 }
 ```
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -200,6 +228,7 @@ public class MyConfig {
     </bean>
 </beans>
 ```
+
 ```java
 //测试
 /**
@@ -218,6 +247,7 @@ public class MainApplication {
     }
 }
 ```
+
 ```properties
 # 测试结果：
 容器中haha组件：true
@@ -229,6 +259,7 @@ public class MainApplication {
 ```
 
 ### 3. 配置绑定
+
 使用java读取到properties文件中的内容，并且把它封装到javaBean中，以供随时使用
 
 ```java
@@ -249,23 +280,29 @@ public class getProperties {
     }
 }
 ```
+
 #### 3.1. @ConfigurationProperties
+
 - @EnableConfigurationProperties + @ConfigurationProperties
     - @EnableConfigurationProperties
         - 开启实体类配置绑定功能
         - 把实体类自动注册到容器中
     - @ConfigurationProperties
         - 给实体类添加，没有它会报错，找不到Car，配置类中的@Autowired编译博爱错
+
 > 给一个实体类赋初始值
- 
+
 **第二种方法：在配置类中操作**
+
 - 对配置类操作，添加@EnableConfigurationProperties
+
 ```java
 @EnableConfigurationProperties(Car.class)
 public class MyConfig {
     ...
 }
 ```
+
 ```java
 @ConfigurationProperties(prefix = "mycar")
 public class Car {
@@ -275,19 +312,24 @@ public class Car {
     //getter、setter、toString
 }
 ```
+
 ```properties
 mycar.brand=BYD
 mycar.price=100000
 ```
+
 - 启动主方法，测试结果
 
 ![image-给实体类赋初始值测试](../image/给实体类赋初始值测试.png)
 
 - @Component + @ConfigurationProperties
+
 > 给一个实体类赋初始值
 
 **第一种方法：在实体方法中操作**
+
 - 创建一个实体类Car.java
+
 ```java
 /**
  * 只有在容器中的组件才会拥有SpringBoot提供的功能
@@ -324,17 +366,22 @@ public class Car {
     }
 }
 ```
+
 - 在application.properties中将Car类中的属性写到配置文件中
+
 ```properties
 mycar.brand=BYD
 mycar.price=100000
 ```
+
 - 启动主类方法，测试结果
 
 ![image-给实体类赋初始值测试](../image/给实体类赋初始值测试.png)
 
 ### 4. 自动配置原理入门
+
 #### 4.1. 引导加载自动配置类
+
 ```java
 @SpringBootConfiguration
 @EnableAutoConfiguration
@@ -344,7 +391,9 @@ public @interface SpringBootApplication {
     ...
 }
 ```
+
 - @SpringBootConfiguration
+
 ```integrationperformancetest
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -357,12 +406,14 @@ public @interface SpringBootConfiguration {
     boolean proxyBeanMethods() default true;
 }
 ```
+
 **发现@SpringBootConfiguration注解中，其实就是一个@Configuration修饰，说明该注解就是标注一个配置类**
 
 - @ComponentScan
-**指定扫描那些包**
+  **指定扫描那些包**
 
 - @EnableAutoConfiguration
+
 ```java
 @AutoConfigurationPackage
 @Import(AutoConfigurationImportSelector.class)
@@ -370,10 +421,12 @@ public @interface EnableAutoConfiguration {
     
 }
 ```
+
 **可见@EnableAutoConfiguration注解是由两个注解修饰的**
 > @AutoConfigurationPackage
 
 > 自动配置包
+
 ```java
 @Import(AutoConfigurationPackages.Registrar.class)
 public @interface AutoConfigurationPackage {
@@ -399,10 +452,12 @@ static class Registrar implements ImportBeanDefinitionRegistrar, DeterminableImp
 
 }
 ```
+
 *@Import*：导入一个组件
 
 [@Import高级用法](https://www.bilibili.com/video/BV1gW411W7wy?p=8)
->@Import(AutoConfigurationImportSelector.class)
+> @Import(AutoConfigurationImportSelector.class)
+
 ```java
 public class AutoConfigurationImportSelector implements DeferredImportSelector, BeanClassLoaderAware,
 		ResourceLoaderAware, BeanFactoryAware, EnvironmentAware, Ordered {
@@ -473,6 +528,7 @@ protected AutoConfigurationEntry getAutoConfigurationEntry(AnnotationMetadata an
         return result;
     }
 ```
+
 ![image-spring.factories文件位置](../image/spring.factories文件位置.png)
 
 > SpringBoot加载的所有组件，都是在文件中配置好的
@@ -620,7 +676,9 @@ org.springframework.boot.autoconfigure.webservices.client.WebServiceTemplateAuto
 > 此时就有了按需开启自动配置项
 
 #### 4.2. 按需开启自动配置项
+
 > 虽然SpringBoot启动的时候都会将所有的组件加载进来，但是最终会按照条件装配规则，按需开启自动配置
+
 ```java
 @ConditionalOnClass(Advice.class)
 @ConditionalOnClass(LocalContainerEntityManagerFactoryBean.class)
@@ -656,7 +714,9 @@ public class HttpEncodingAutoConfiguration {
 ```
 
 #### 4.3. 定制化修改自动配置
+
 > 定制化如果不用SpringBoot默认的编码过滤器，我们可以自己在配置文件中写自己的过滤器
+
 ```java
 @Import({User.class, DBHelper.class})
 @Configuration(proxyBeanMethods = true)  //告诉springboot，这是一个配置类
@@ -676,24 +736,26 @@ public class MyConfig {
     }
 }
 ```
+
 **总结：**
-- SpringBoot先加载所有的自动配置类     xxxxxAutoConfiguration
+
+- SpringBoot先加载所有的自动配置类 xxxxxAutoConfiguration
 - 每个自动配置类，按照条件进行生效，默认都会绑定配置文件指定的值。(@EnableConfigurationProperties(xxxxPeoperties.class))，xxxxPeoperties和配置文件进行了绑定
 - 生效的配置类给容器中装配很多组件
 - 只要容器中有这些组件，相当于这些功能就有了
 - 定制化配置
     - 用户直接自己@Bean替换底层组件
     - 用户去看这个组件是获取配置文件什么值，就去修改即可
-- 只要用户有自己配置的，就以用户的优先
-xxxxPeoperties ----> 组件 ----> xxxxPeoperties里面拿值 ----> application.properties
+- 只要用户有自己配置的，就以用户的优先 xxxxPeoperties ----> 组件 ----> xxxxPeoperties里面拿值 ----> application.properties
 
 #### 4.4. 最佳实践
+
 - 引入场景依赖（spring-boot-starter-*）
     - [SpringBoot所有场景依赖](https://docs.spring.io/spring-boot/docs/current/reference/html/using-spring-boot.html#using-boot-starter)
     - [Spring Boot Reference Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/index.html)
 - 查看自动配置了哪些
     - 自己分析，引入尝尽对应的自动配置一般都生效了
-    - 配置文件中开启自动配置报告  debug=true
+    - 配置文件中开启自动配置报告 debug=true
         - Negative(不生效的)
         - Positive(生效的)
 - 是否需要修改
@@ -701,21 +763,24 @@ xxxxPeoperties ----> 组件 ----> xxxxPeoperties里面拿值 ----> application.p
         - [官方文档配置项](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-application-properties.html#common-application-properties)
     - 自定义加入或者替换组件
         - 自己分析，xxxxProperties绑定了配置文件是什么
-        - 使用 @Bean   @Component ...来设置自定义配置（组件）
-    - 自定义器  xxxxCustonmizer;
+        - 使用 @Bean @Component ...来设置自定义配置（组件）
+    - 自定义器 xxxxCustonmizer;
     - ...
+
 > 修改banner图
 
 - 配置 spring.banner.image.location=classpath:banner-image.jpg
 
 ### 5. 开发小技巧
+
 #### 5.1. Lombok
+
 - 简化JavaBean开发
     - 引入Lombak插件
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
+      <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      </dependency>
     - 安装插件
         - 搜索安装 lombok
     - 使用：
@@ -725,19 +790,30 @@ xxxxPeoperties ----> 组件 ----> xxxxPeoperties里面拿值 ----> application.p
         - 配置类中的无参构造器可以使用注解 @NoArgsConstructor
         - 配置类中的get、set、toString可以使用注解 @Data
         - 配置类中的Equals和HashCode可以使用注解 @EqualsAndHashCode
-        - 配置类中的日志打印也可以使用注解 @Sl4j  Log.info("...")
-#### 5.2. Spring Initailizer
+        - 配置类中的日志打印也可以使用注解 @Sl4j Log.info("...")
 
+#### 5.2. dev-tools
 
-#### 5.3. dev-tools
 [官方文档](https://docs.spring.io/spring-boot/docs/current/reference/html/using-spring-boot.html#using-boot-devtools)
+
 - 引入依赖
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-devtools</artifactId>
-        <optional>true</optional>
-    </dependency>
+  <dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-devtools</artifactId>
+  <optional>true</optional>
+  </dependency>
 - 在代码或者配置文件中做修改，只要我们 ctrl+F9 就可以实时生效，不需要重启项目了
+- dev-tools是重新加载
+- JRebel 是可以热部署的，但是需要付费，在idea中可以安装
+
+#### 5.3. Spring Initailizer
+- 创建Initailizer
+
+
+
+
+
+
 
 
 

@@ -1,6 +1,7 @@
 ## 使用SpringBoot创建简单的web，访问并返回hello
 
 ### 1. 环境变量配置
+
 - jdk 1.8以上
     - JAVA_HOME = E:\java\jdk8\jdk1.8.0_281
     - Path = .:%JAVA_HOME%\bin;%JAVA_HOME%\jre\bin
@@ -10,6 +11,7 @@
 - idea_maven 配置
 
 ### 2. 创建maven项目
+
 - pom.xml
     - 添加父工程
       ```xml
@@ -26,7 +28,9 @@
         <artifactId>spring-boot-starter-web</artifactId>
       </dependency>
       ```
+
 ### 3. 创建启动类 com.zichen.boot.MainApplication.java
+
 ```java
 package com.zichen.boot;
 
@@ -53,6 +57,7 @@ public class MainApplication {
 ```
 
 ### 4. 创建Controller
+
 ```java
 package com.zichen.boot.controller;
 
@@ -76,8 +81,11 @@ public class HelloController {
     }
 }
 ```
+
 ### 5. 运行
+
 - 启动主方法
+
 ```properties
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -99,8 +107,8 @@ public class HelloController {
 2021-05-02 18:38:00.696  INFO 15784 --- [           main] com.zichen.boot.MainApplication          : Started MainApplication in 1.647 seconds (JVM running for 2.843)
 
 ```
-- 打开浏览器访问
-    localhost:8080/hello
-  
+
+- 打开浏览器访问 localhost:8080/hello
+
 ![image-访问结果图片](../image/访问结果图片.png)
   

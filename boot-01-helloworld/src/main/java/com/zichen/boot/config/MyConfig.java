@@ -26,11 +26,11 @@ import javax.sql.DataSource;
  * 1. 配置类里面使用@Bean标注在方法上给容器注册组件，默认是单例的
  * 2. 配置类本身也是一个组件
  * 3. proxyBeanMethods：代理bean的方法
- *      Full(proxyBeanMethods = true) 每一次调用都会使用代理对象
- *      Lite(proxyBeanMethods = false) 每一次调用不会使用代理对象，都会是一个新的对象
- *      解决问题：组件依赖
- *  4. @Import({User.class, DBHelper.class})
- *      给容器中自动创建出这两个类型的组件、默认组件的名字就是全类名：com.zichen.boot.bean.User
+ * Full(proxyBeanMethods = true) 每一次调用都会使用代理对象
+ * Lite(proxyBeanMethods = false) 每一次调用不会使用代理对象，都会是一个新的对象
+ * 解决问题：组件依赖
+ * 4. @Import({User.class, DBHelper.class})
+ * 给容器中自动创建出这两个类型的组件、默认组件的名字就是全类名：com.zichen.boot.bean.User
  */
 @Import({User.class, DBHelper.class})
 @Configuration(proxyBeanMethods = true)  //告诉springboot，这是一个配置类
@@ -44,6 +44,7 @@ public class MyConfig {
 
     /**
      * 外部无论对配置类中的这个组件注册方法调用多少次获取的都是之前注册容器中的单实例
+     *
      * @return
      */
     @ConditionalOnBean(MyConfig.class)//表示，在容器中存在DataSource组件，就注入user01这个组件，没有则不注入
