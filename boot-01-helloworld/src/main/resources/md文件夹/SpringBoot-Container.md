@@ -728,10 +728,16 @@ xxxxPeoperties ----> 组件 ----> xxxxPeoperties里面拿值 ----> application.p
         - 配置类中的日志打印也可以使用注解 @Sl4j  Log.info("...")
 #### 5.2. Spring Initailizer
 
+
 #### 5.3. dev-tools
-
-
-
+[官方文档](https://docs.spring.io/spring-boot/docs/current/reference/html/using-spring-boot.html#using-boot-devtools)
+- 引入依赖
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <optional>true</optional>
+    </dependency>
+- 在代码或者配置文件中做修改，只要我们 ctrl+F9 就可以实时生效，不需要重启项目了
 
 
 
