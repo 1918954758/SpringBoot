@@ -807,6 +807,7 @@ public class MyConfig {
 - JRebel 是可以热部署的，但是需要付费，在idea中可以安装
 
 #### 5.3. Spring Initailizer
+- 项目初始化向导
 - 创建Initailizer
 
 
