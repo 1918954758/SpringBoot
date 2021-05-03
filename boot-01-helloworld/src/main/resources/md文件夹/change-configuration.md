@@ -8,6 +8,7 @@ server.port=8888
 #### 1. 我们可以更改哪些配置，需要参考官方文档
 https://docs.spring.io/spring-boot/docs/current/reference/html/index.html
     该链接找到 Application Properties
+
 ![image-springboot-doc](../image/springboot-doc.png)
 
 #### 2. 使用插件打jar包
@@ -54,6 +55,7 @@ java -jar boot-01-helloworld-1.0-SNAPSHOT.jar
 
 #### 5. 自动配置
 **默认包结构：** 主程序所在的包及其下面所有子包里面的组件都会被默认扫描进来
+
 ![image-default_scan_package_rule](../image/default_scan_package_rule.png)
 **如果我们想在别的目录下面写成写：** 可以人为的指定包扫描目录
 - 在主程序加上属性 scanBasePackages="com.xx.xx" 即可

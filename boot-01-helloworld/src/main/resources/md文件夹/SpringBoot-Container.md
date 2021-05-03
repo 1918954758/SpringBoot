@@ -21,7 +21,7 @@ beans.xml
 </beans>
 ```
 - 现在给springboot容器添加组件，是需要写一个类，给这个类标注@Configuration注解
-- @Configuration
+#### 1.1. @Configuration
 ```java
 /**
  * @name: MyConfig
@@ -57,18 +57,18 @@ public class MyConfig {
     > 测试组件，参见启动类中的打印
     > 配置类本身也是一个组件，也可以使用 run.getBean(MyConfig.class);来获取
 
-- @Configuration注解的两种模式
+#### 1.2. @Configuration注解的两种模式
     - Full模式    @Configuration(proxyBeanMethods = true)
     - Lite模式    @Configuration(proxyBeanMethods = false)
     - 配置类组件之间无依赖关系用Lite模式，加速容器启动过程，减少判断
     - 配置类组件之间有依赖关系，方法会被调用得到之前单实例组件，用Full模式
-- @Bean、@Component、@Controller、@Service、@Repository
+#### 1.3. @Bean、@Component、@Controller、@Service、@Repository
     - @Bean - 表示该方法是一个bean
     - @Component - 在类上表示该类是一个组件
     - @Controller - 表示是一个控制器
     - @Service - 表示是一个业务逻辑组件
     - @Repository - 表示是一个数据库层组件
-- @ComponentScan、@Import
+#### 1.4. @ComponentScan、@Import
     - @ComponentScan - 指定包扫描规则
     - @Import - 给容器导入一个组件，写在任意一个配置类中或者组件中都可以
         - 将指定类型的组件导入进来
@@ -104,8 +104,9 @@ com.zichen.boot.bean.User
 user01
 DBHelper组件 = [Ljava.lang.String;@62515a47
 ```
-- @Conditional
+#### 1.5. @Conditional
 **条件装配：满足Condition指定的条件，则进行组件注入**
+
 ![image-ConditionAnnotation](../image/ConditionAnnotation.png)
 **ConditionalOnBean** - 当容器中有Bean，才去注入组件
 **ConditionalOnMissingBean** - 当容器中没有Bean，才去注入组件
@@ -176,7 +177,7 @@ public class MyConfig {
 **使用@ConditionalOnBean(name="tom")测试结果是，只要方法上加了该注解，就不会将该方法注入，不管tom组件是否存在，都不会注入**
 **也可以将@ConditionalOnBean注解加到配置类上，表示，满足条件的时候，配置类中的所有组件都注入，不满足条件的时候，配置类中的所有组件都不注入**
 ### 2. 原生配置文件引入
-- @ImportResource - 导入资源
+#### 2.1. @ImportResource - 导入资源
     当我们需要将beans.xml中的bean引入的时候，我们可以使用@ImportResource注解来导入
 ```java
 @ImportResource("classpath:beans.xml")
@@ -248,13 +249,89 @@ public class getProperties {
     }
 }
 ```
-- @ConfigurationProperties
-
-
+#### 3.1. @ConfigurationProperties
 - @EnableConfigurationProperties + @ConfigurationProperties
+    - @EnableConfigurationProperties
+        - 开启实体类配置绑定功能
+        - 把实体类自动注册到容器中
+    - @ConfigurationProperties
+        - 给实体类添加，没有它会报错，找不到Car，配置类中的@Autowired编译博爱错
+> 给一个实体类赋初始值
+ 
+**第二种方法：在配置类中操作**
+- 对配置类操作，添加@EnableConfigurationProperties
+```java
+@EnableConfigurationProperties(Car.class)
+public class MyConfig {
+    ...
+}
+```
+```java
+@ConfigurationProperties(prefix = "mycar")
+public class Car {
 
+    private String brand;
+    private Integer price;
+    //getter、setter、toString
+}
+```
+```properties
+mycar.brand=BYD
+mycar.price=100000
+```
+- 启动主方法，测试结果
+
+![image-给实体类赋初始值测试](../image/给实体类赋初始值测试.png)
 
 - @Component + @ConfigurationProperties
+> 给一个实体类赋初始值
+
+**第一种方法：在实体方法中操作**
+- 创建一个实体类Car.java
+```java
+/**
+ * 只有在容器中的组件才会拥有SpringBoot提供的功能
+ */
+@Component
+@ConfigurationProperties(prefix = "mycar")
+public class Car {
+
+    private String brand;
+    private Integer price;
+
+    @Override
+    public String toString() {
+        return "Car{" +
+                "brand='" + brand + '\'' +
+                ", price=" + price +
+                '}';
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
+    }
+}
+```
+- 在application.properties中将Car类中的属性写到配置文件中
+```properties
+mycar.brand=BYD
+mycar.price=100000
+```
+- 启动主类方法，测试结果
+
+![image-给实体类赋初始值测试](../image/给实体类赋初始值测试.png)
 
 ### 4. 自动配置原理入门
 - 引导加载自动配置类

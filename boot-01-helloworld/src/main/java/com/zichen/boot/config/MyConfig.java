@@ -1,10 +1,12 @@
 package com.zichen.boot.config;
 
 import ch.qos.logback.core.db.DBHelper;
+import com.zichen.boot.bean.Car;
 import com.zichen.boot.bean.Pet;
 import com.zichen.boot.bean.User;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -31,7 +33,12 @@ import javax.sql.DataSource;
  */
 @Import({User.class, DBHelper.class})
 @Configuration(proxyBeanMethods = true)  //告诉springboot，这是一个配置类
+/**
+ * - 开启Car自动绑定功能
+ * - 把Car自动注册到容器中
+ */
 @ImportResource("classpath:beans.xml")
+@EnableConfigurationProperties(Car.class)
 public class MyConfig {
 
     /**
