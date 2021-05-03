@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 import javax.sql.DataSource;
 
@@ -57,4 +58,12 @@ public class MyConfig {
     public Pet tomcatPet() {
         return new Pet("tomcat");
     }
+
+    /*
+     * 自定义过滤器
+     */
+//    @Bean
+//    public CharacterEncodingFilter filter() {
+//        return null;
+//    }
 }

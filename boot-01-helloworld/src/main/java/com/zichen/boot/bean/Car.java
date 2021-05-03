@@ -1,5 +1,9 @@
 package com.zichen.boot.bean;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -15,32 +19,13 @@ import org.springframework.stereotype.Component;
  */
 //@Component
 @ConfigurationProperties(prefix = "mycar")
+@AllArgsConstructor  //全参构造器
+@NoArgsConstructor  //无参构造器
+@Data   //setter、getter方法
+@ToString   //toString方法
 public class Car {
 
     private String brand;
     private Integer price;
 
-    @Override
-    public String toString() {
-        return "Car{" +
-                "brand='" + brand + '\'' +
-                ", price=" + price +
-                '}';
-    }
-
-    public String getBrand() {
-        return brand;
-    }
-
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
-    public Integer getPrice() {
-        return price;
-    }
-
-    public void setPrice(Integer price) {
-        this.price = price;
-    }
 }

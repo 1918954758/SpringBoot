@@ -5,8 +5,11 @@ import com.zichen.boot.bean.Pet;
 import com.zichen.boot.bean.User;
 import com.zichen.boot.config.MyConfig;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import sun.applet.Main;
 
 /**
@@ -19,7 +22,10 @@ import sun.applet.Main;
 /**
  * 告诉springboot，这是一个springboot应用
  */
-@SpringBootApplication
+//@SpringBootApplication
+@SpringBootConfiguration
+@EnableAutoConfiguration
+@ComponentScan("com.zichen.boot")
 public class MainApplication {
     public static void main(String[] args) {
         // 1. 返回IOC容器
