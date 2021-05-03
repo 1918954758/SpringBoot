@@ -724,6 +724,8 @@ xxxxPeoperties ----> 组件 ----> xxxxPeoperties里面拿值 ----> application.p
             - 如果配置类中构造器只是用了部分参数，那么我们需要手动添加需要的构造器类即可，没有对应的注解(可能以后会出现)
         - 配置类中的无参构造器可以使用注解 @NoArgsConstructor
         - 配置类中的get、set、toString可以使用注解 @Data
+        - 配置类中的Equals和HashCode可以使用注解 @EqualsAndHashCode
+        - 配置类中的日志打印也可以使用注解 @Sl4j  Log.info("...")
 #### 5.2. Spring Initailizer
 
 #### 5.3. dev-tools
