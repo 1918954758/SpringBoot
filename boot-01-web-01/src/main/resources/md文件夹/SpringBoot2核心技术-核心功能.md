@@ -129,6 +129,157 @@ public class HelloController {
 ![image-favicon](../image/favicon.png)
 
 *注意：* 显示ico图标有可能会有缓存影响，禁用尝试
+> 2.1.3. 静态资源配置原理
+- SpringB启动默认加载 xxxAautoConfiguration类（自动配置类）
+- SpringMVC功能的自动配置类WebMVCAutoConfiguration
+- 看这个配置类是否生效
+```java
+@Configuration(
+    proxyBeanMethods = false
+)
+@ConditionalOnWebApplication(
+    type = Type.SERVLET
+)
+@ConditionalOnClass({Servlet.class, DispatcherServlet.class, WebMvcConfigurer.class})
+@ConditionalOnMissingBean({WebMvcConfigurationSupport.class})
+@AutoConfigureOrder(-2147483638)
+@AutoConfigureAfter({DispatcherServletAutoConfiguration.class, TaskExecutionAutoConfiguration.class, ValidationAutoConfiguration.class})
+public class WebMvcAutoConfiguration {
+    //...
+}
+```
+- 给容器中配置了什么
+```java
+@Configuration(
+    proxyBeanMethods = false
+)
+@Import({WebMvcAutoConfiguration.EnableWebMvcConfiguration.class})
+@EnableConfigurationProperties({WebMvcProperties.class, ResourceProperties.class, WebProperties.class})//
+@Order(0)
+public static class WebMvcAutoConfigurationAdapter implements WebMvcConfigurer {
+    //...
+}
+@ConfigurationProperties(prefix = "spring.mvc")
+public class WebMvcProperties {
+    //...
+}
+@Deprecated
+@ConfigurationProperties(prefix = "spring.resources", ignoreUnknownFields = false)
+public class ResourceProperties extends Resources {
+    //...
+}
+@ConfigurationProperties("spring.web")
+public class WebProperties {
+    //...
+}
+```
+- 配置文件的相关属性和什么进行了绑定。WebMvcProperties = **spring.mvc** 、ResourceProperties = **spring.resources**、WebProperties = **spring.web**
+
+
+
+**扩展：**
+- 1. 配置类只有一个有参构造器，所有参数的值都会从容器中确定
+```java
+    @Configuration(
+            proxyBeanMethods = false
+    )
+    @EnableConfigurationProperties({WebProperties.class})
+    public static class EnableWebMvcConfiguration extends DelegatingWebMvcConfiguration implements ResourceLoaderAware {
+    private static final Log logger = LogFactory.getLog(WebMvcConfigurer.class);
+    private final Resources resourceProperties;
+    private final WebMvcProperties mvcProperties;
+    private final WebProperties webProperties;
+    private final ListableBeanFactory beanFactory;
+    private final WebMvcRegistrations mvcRegistrations;
+    private final WebMvcAutoConfiguration.ResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer;
+    private ResourceLoader resourceLoader;
+
+    // ResourceProperties resourceProperties    prefix = "spring.resources"
+    // WebMvcProperties mvcProperties   prefix = "spring.mvc"
+    // WebProperties webProperties   prefix = "spring.web"
+    // ObjectProvider<WebMvcRegistrations> mvcRegistrationsProvider
+    // ObjectProvider<WebMvcAutoConfiguration.ResourceHandlerRegistrationCustomizer> resourceHandlerRegistrationCustomizerProvider 找ResourceHandlerRegistrationCustomizer资源处理器自定义器
+    //ListableBeanFactory beanFactory IOC容器工厂中获得
+    public EnableWebMvcConfiguration(ResourceProperties resourceProperties, WebMvcProperties mvcProperties, WebProperties webProperties, ObjectProvider<WebMvcRegistrations> mvcRegistrationsProvider, ObjectProvider<WebMvcAutoConfiguration.ResourceHandlerRegistrationCustomizer> resourceHandlerRegistrationCustomizerProvider, ListableBeanFactory beanFactory) {
+        this.resourceProperties = (Resources) (resourceProperties.hasBeenCustomized() ? resourceProperties : webProperties.getResources());
+        this.mvcProperties = mvcProperties;
+        this.webProperties = webProperties;
+        this.mvcRegistrations = (WebMvcRegistrations) mvcRegistrationsProvider.getIfUnique();
+        this.resourceHandlerRegistrationCustomizer = (WebMvcAutoConfiguration.ResourceHandlerRegistrationCustomizer) resourceHandlerRegistrationCustomizerProvider.getIfAvailable();
+        this.beanFactory = beanFactory;
+    }
+}
+```
+- 资源处理的默认规则
+```java
+@Configuration(
+        proxyBeanMethods = false
+)
+@EnableConfigurationProperties({WebProperties.class})
+public static class EnableWebMvcConfiguration extends DelegatingWebMvcConfiguration implements ResourceLoaderAware {
+    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+        super.addResourceHandlers(registry);
+        // resourceProperties =  ["classpath:/haha...", "classpath:/abc/", "classpath:/stat...", "classpath:/temp...", ...]
+        if (!this.resourceProperties.isAddMappings()) {
+            logger.debug("Default resource handling disabled");
+        } else {
+            ServletContext servletContext = this.getServletContext();
+            // 处理webjars资源寻找路径 classpath:/META-INF/resources/webjars/**
+            this.addResourceHandler(registry, "/webjars/**", "classpath:/META-INF/resources/webjars/");
+            // 处理默认资源路径  /**   registration里面有默认访问路径/**，以及我们自己配置的访问路径：。。。
+            this.addResourceHandler(registry, this.mvcProperties.getStaticPathPattern(), (registration) -> {
+                registration.addResourceLocations(this.resourceProperties.getStaticLocations());
+                if (servletContext != null) {
+                    registration.addResourceLocations(new Resource[]{new ServletContextResource(servletContext, "/")});
+                }
+            });
+        }
+    }
+}
+
+public static class Resources {
+
+    private static final String[] CLASSPATH_RESOURCE_LOCATIONS = {"classpath:/META-INF/resources/",
+            "classpath:/resources/", "classpath:/static/", "classpath:/public/"};
+
+    /**
+     * Locations of static resources. Defaults to classpath:[/META-INF/resources/,
+     * /resources/, /static/, /public/].
+     */
+    private String[] staticLocations = CLASSPATH_RESOURCE_LOCATIONS;
+
+    /**
+     * Whether to enable default resource handling.
+     */
+    private boolean addMappings = true;
+
+    private boolean customized = false;
+
+    private final Chain chain = new Chain();
+
+    private final Cache cache = new Cache();
+
+    public String[] getStaticLocations() {
+        return this.staticLocations;
+    }
+}
+```
+- 欢迎页处理规则
+*HandlerMapping* : 处理映射器，保存了每一个Handler能处理那些请求。
+```java
+@EnableConfigurationProperties({WebProperties.class})
+public static class EnableWebMvcConfiguration extends DelegatingWebMvcConfiguration implements ResourceLoaderAware {
+    @Bean
+    public WelcomePageHandlerMapping welcomePageHandlerMapping(ApplicationContext applicationContext, FormattingConversionService mvcConversionService, ResourceUrlProvider mvcResourceUrlProvider) {
+        WelcomePageHandlerMapping welcomePageHandlerMapping = new WelcomePageHandlerMapping(new TemplateAvailabilityProviders(applicationContext), applicationContext, this.getWelcomePage(), this.mvcProperties.getStaticPathPattern());
+        welcomePageHandlerMapping.setInterceptors(this.getInterceptors(mvcConversionService, mvcResourceUrlProvider));
+        welcomePageHandlerMapping.setCorsConfigurations(this.getCorsConfigurations());
+        return welcomePageHandlerMapping;
+    }
+}
+```
+
+
 
 ### 2.2. 请求参数处理
 >

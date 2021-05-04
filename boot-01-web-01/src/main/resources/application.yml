@@ -1,12 +1,12 @@
 spring:
 #  mvc:
-#    # 访问静态资源添加前缀
+#    # 访问静态资源添加前缀，静态资源前缀对于访问欢迎页不支持，因为底层已经写死了，直接找静态资源下的index.html
 #    static-path-pattern: /res/**
   web:
     resources:
       # 改变静态资源访问路径
       #static-locations: classpath:/haha/
       # 改变资源访问路径可以使用数组，改变多个资源访问路径
-      static-locations: ["classpath:/haha/", "classpath:/abc/", "classpath:/static/", "classpath:/templates"]
+      static-locations: ["classpath:/haha/", "classpath:/abc/", "classpath:/templates"]
       # false是禁用静态资源，都访问不了了，  默认是true不禁用
       # add-mappings: false
