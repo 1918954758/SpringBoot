@@ -23,4 +23,32 @@ public class HelloController {
     public String index() {
         return "index.html";
     }
+
+    @ResponseBody
+    //@RequestMapping(value = "/user", method = RequestMethod.GET)
+    @GetMapping("/user")
+    public String getUser() {
+        return "GET - 张三";
+    }
+
+    @ResponseBody
+    //@RequestMapping(value = "/user", method = RequestMethod.POST)
+    @PostMapping("/user")
+    public String saveUser() {
+        return "POST - 张三";
+    }
+
+    @ResponseBody
+    //@RequestMapping(value = "/user", method = RequestMethod.PUT)
+    @PutMapping("/user")
+    public String putUser() {
+        return "PUT - 张三";
+    }
+
+    @ResponseBody
+    //@RequestMapping(value = "/user", method = RequestMethod.DELETE)
+    @DeleteMapping("/user")
+    public String deleteUser() {
+        return "DELETE - 张三";
+    }
 }

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>com.zichen，welcome page</h1>
+    <!--测试REST风格-->
+    <form action="/user" method="get">
+        <input value="REST-GET 提交" type="submit"/>
+    </form>
+    <br/>
+    <form action="/user" method="post">
+        <input value="REST-POST 提交" type="submit"/>
+    </form>
+    <br/>
+    <form action="/user" method="post">
+        <input name="_method" type="hidden" value="DELETE"/>
+        <input value="REST-DELETE 提交" type="submit"/>
+    </form>
+    <br/>
+    <form action="/user" method="post">
+        <input name="_method" type="hidden" value="PUT">
+        <input value="REST-PUT 提交" type="submit"/>
+    </form>
+    <br/>
+    <hr/>
+    <!-- 测试基本注解 -->
+</body>
+</html>

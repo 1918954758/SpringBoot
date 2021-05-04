@@ -279,12 +279,187 @@ public static class EnableWebMvcConfiguration extends DelegatingWebMvcConfigurat
 }
 ```
 
-
-
 ### 2.2. 请求参数处理
->
+> 请求映射
+- @xxxMapping
+- Rest风格支持（使用HTTP请求方式动词来表示对资源的操作）
+    - 以前：/getUser 获取用户  /deleteUser 删除用户  /editUser  修改用户   /saveUser 保存用户
+    - 现在：/user  GET-获取请求  DELETE-删除用户  PUT-修改用户  POST-保存用户
+    - 核心Filter：需要配置HiddenHttpMethodFilter，才可以使用现在的Rest风格
+        - 用法：表单method=post，隐藏域 _method=put
+        - SpringBoot中需要手动开启Rest风格
+```java
+@Configuration(
+        proxyBeanMethods = false
+)
+@ConditionalOnWebApplication(
+        type = Type.SERVLET
+)
+@ConditionalOnClass({Servlet.class, DispatcherServlet.class, WebMvcConfigurer.class})
+@ConditionalOnMissingBean({WebMvcConfigurationSupport.class})
+@AutoConfigureOrder(-2147483638)
+@AutoConfigureAfter({DispatcherServletAutoConfiguration.class, TaskExecutionAutoConfiguration.class, ValidationAutoConfiguration.class})
+public class WebMvcAutoConfiguration {
+    public static final String DEFAULT_PREFIX = "";
+    public static final String DEFAULT_SUFFIX = "";
+    private static final String SERVLET_LOCATION = "/";
 
->
+    public WebMvcAutoConfiguration() {
+    }
+
+    @Bean
+    @ConditionalOnMissingBean({HiddenHttpMethodFilter.class})//当HiddenHttpMethodFilter没有生效的时候，下面方法才生效
+    @ConditionalOnProperty(
+            prefix = "spring.mvc.hiddenmethod.filter",
+            name = {"enabled"},
+            matchIfMissing = false
+    )//默认是没有开启提交方法过滤的，需要我们手动开启，在配置文件中配置
+    public OrderedHiddenHttpMethodFilter hiddenHttpMethodFilter() {
+        return new OrderedHiddenHttpMethodFilter();
+    }
+}
+```
+```yaml
+spring:
+#  mvc:
+#    # 访问静态资源添加前缀，静态资源前缀对于访问欢迎页不支持，因为底层已经写死了，直接找静态资源下的index.html
+#    static-path-pattern: /res/**
+  web:
+    resources:
+      # 改变静态资源访问路径
+      #static-locations: classpath:/haha/
+      # 改变资源访问路径可以使用数组，改变多个资源访问路径
+      static-locations: ["classpath:/haha/", "classpath:/abc/", "classpath:/templates"]
+      # false是禁用静态资源，都访问不了了，  默认是true不禁用
+      # add-mappings: false
+  # 手动开启请求方法
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+```
+- 页面提交的时候注意DELETE/PUT/等方式，from的method属性还得写post
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>com.zichen，welcome page</h1>
+    <!--测试REST风格-->
+    <form action="/user" method="get">
+        <input value="REST-GET 提交" type="submit"/>
+    </form>
+    <br/>
+    <form action="/user" method="post">
+        <input value="REST-POST 提交" type="submit"/>
+    </form>
+    <br/>
+    <form action="/user" method="post">
+        <input name="_method" type="hidden" value="DELETE"/>
+        <input value="REST-DELETE 提交" type="submit"/>
+    </form>
+    <br/>
+    <form action="/user" method="post">
+        <input name="_method" type="hidden" value="PUT">
+        <input value="REST-PUT 提交" type="submit"/>
+    </form>
+    <br/>
+    <hr/>
+    <!-- 测试基本注解 -->
+</body>
+</html>
+```
+```java
+public class HiddenHttpMethodFilter extends OncePerRequestFilter {
+    private static final List<String> ALLOWED_METHODS;
+    public static final String DEFAULT_METHOD_PARAM = "_method";
+    private String methodParam = "_method";
+
+    public HiddenHttpMethodFilter() {
+    }
+
+    public void setMethodParam(String methodParam) {
+        Assert.hasText(methodParam, "'methodParam' must not be empty");
+        this.methodParam = methodParam;
+    }
+
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        //拿到用户发起的请求
+        HttpServletRequest requestToUse = request;
+        //这里也就说明了HTML页面中，如果是PUT/DELETE/等提交，from的method属性为什么还得写post，由于底层代码会拿到页面的请求方法参数，进行和"POST"比较，相等的情况下，才去拿到我们隐藏的那个真正的提交方法。
+        if ("POST".equals(request.getMethod()) && request.getAttribute("javax.servlet.error.exception") == null) {
+            //获取请求参数    _method的请求参数
+            String paramValue = request.getParameter(this.methodParam);
+            if (StringUtils.hasLength(paramValue)) {
+                String method = paramValue.toUpperCase(Locale.ENGLISH);
+                if (ALLOWED_METHODS.contains(method)) {
+                    requestToUse = new HiddenHttpMethodFilter.HttpMethodRequestWrapper(request, method);
+                }
+            }
+        }
+        filterChain.doFilter((ServletRequest) requestToUse, response);
+    }
+    static {
+        ALLOWED_METHODS = Collections.unmodifiableList(Arrays.asList(HttpMethod.PUT.name(), HttpMethod.DELETE.name(), HttpMethod.PATCH.name()));
+    }
+
+    private static class HttpMethodRequestWrapper extends HttpServletRequestWrapper {
+        private final String method;
+
+        public HttpMethodRequestWrapper(HttpServletRequest request, String method) {
+            super(request);
+            this.method = method;
+        }
+
+        public String getMethod() {
+            return this.method;
+        }
+    }
+}
+```
+- Rest原理（表单提交要是用REST的时候）
+    - 表单提交会带上 _method = PUT
+    - 请求过来会被HiddenHttpMethodFilter拦截
+        - 判断请求是否正常，并且是post方式
+            - 获取到_method的值。
+            - 兼容以下请求：PUT/DELETE/PATCH
+            - 原生request(post)，包装模式，包装了一个requestWrapper重写了getMethod犯法，返回的是传入的值。
+            - 下面过滤器链放行的是wrapper。以后的方法调用getMethod是调用requestWrapper的。
+
+- REST使用客户端工具，就和上面的没关系了
+    - 如果使用客户端工具（postman）发送，在HttpServletRequest requestToUse = request;（拿到请求的时候就已经是PUT/DELETE/PATCH请求了），直接进入filterChain.doFilter((ServletRequest) requestToUse, response);（过滤器链放行）
+    - 所以springboot才有了选择开启请求方法功能
+
+- 以下四组，每一组都是等价的
+- @RequestMapping(value = "/user", method = RequestMethod.GET)
+  @GetMapping("/user")
+- @RequestMapping(value = "/user", method = RequestMethod.POST)
+  @PostMapping("/user")
+- @RequestMapping(value = "/user", method = RequestMethod.PUT)
+  @PutMapping("/user")
+- @RequestMapping(value = "/user", method = RequestMethod.DELETE)
+  @DeleteMapping("/user")
+
+**可以将 _method 变成自己喜欢的名字：**
+
+  
+> 普通参数与基本注解
+ 
+
+ 
+
+> POJO封装过程
+
+
+
+
+> 参数处理原理
+
+
+
 
 
 ### 2.3. 数据响应与内容协商
