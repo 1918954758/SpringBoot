@@ -8,3 +8,5 @@ spring:
       #static-locations: classpath:/haha/
       # 改变资源访问路径可以使用数组，改变多个资源访问路径
       static-locations: ["classpath:/haha/", "classpath:/abc/", "classpath:/static/", "classpath:/templates"]
+      # false是禁用静态资源，都访问不了了，  默认是true不禁用
+      # add-mappings: false
