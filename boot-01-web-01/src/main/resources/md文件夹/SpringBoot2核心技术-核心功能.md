@@ -420,6 +420,9 @@ public class HiddenHttpMethodFilter extends OncePerRequestFilter {
     }
 }
 ```
+~~~~
+**RESR原理**
+~~~~
 - Rest原理（表单提交要是用REST的时候）
     - 表单提交会带上 _method = PUT
     - 请求过来会被HiddenHttpMethodFilter拦截
@@ -528,6 +531,12 @@ public class HiddenHttpMethodFilter extends OncePerRequestFilter {
 </html>
 ```
 
+~~~~
+**请求映射原理**
+~~~~
+- 请求映射原理（请求如何找到请求的那个方法呢？）
+
+
   
 > 普通参数与基本注解
  
@@ -575,7 +584,7 @@ public class HiddenHttpMethodFilter extends OncePerRequestFilter {
 >
 
 
-### 2.8. 原生servlet组件
+### 2.8. 原生servlet组件（原生组件注入）
 >
 
 >
