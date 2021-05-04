@@ -100,8 +100,24 @@ spring:
       static-locations: ["classpath:/haha/", "classpath:/abc/"]
 ```
 - controller能处理/index请求的
+- 将欢迎页放到静态资源路径下
+- 编写Controller
+```java
+//@RestController
+@Controller
+public class HelloController {
 
+    @RequestMapping("/index")
+    public String index() {
+        return "index.html";
+    }
+}
+```
+- 这里注意：使用@Controller和@RequestMapping("/)
+- @RequestBody注解是将字符串直接返回给页面
+- 测试
 
+![image-index](../image/index.png)
 
 
 > 2.1.3. 自定义 Favicon
@@ -111,6 +127,8 @@ spring:
 - 访问：http://localhost:8080/hello
 
 ![image-favicon](../image/favicon.png)
+
+*注意：* 显示ico图标有可能会有缓存影响，禁用尝试
 
 ### 2.2. 请求参数处理
 >
