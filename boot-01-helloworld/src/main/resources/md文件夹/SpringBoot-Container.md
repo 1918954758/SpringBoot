@@ -282,7 +282,16 @@ public class getProperties {
 ```
 
 #### 3.1. @ConfigurationProperties
-
+- 使用绑定配置文件注解有时会弹出提示没有导入注解执行器
+```properties
+<!-- SpringBoot 配置注解执行器 -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-configuration-processor</artifactId>
+    <optional>true</optional>
+</dependency>
+```
+- 配置注解执行器配置完成后，当执行类中已经定义了对象和该对象的字段后，在配置文件中对该类赋值时，便会非常方便的弹出提示信息。
 - @EnableConfigurationProperties + @ConfigurationProperties
     - @EnableConfigurationProperties
         - 开启实体类配置绑定功能
