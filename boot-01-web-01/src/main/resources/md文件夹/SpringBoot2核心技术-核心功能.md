@@ -444,6 +444,89 @@ public class HiddenHttpMethodFilter extends OncePerRequestFilter {
   @DeleteMapping("/user")
 
 **可以将 _method 变成自己喜欢的名字：**
+- 由于springboot底层是使用@ConditionalOnMissingBean({HiddenHttpMethodFilter.class})注解，如果容器中没有HiddenHttpMethodFilter组件，则会执行方法中的内容，如果容器中有了@ConditionalOnMissingBean({HiddenHttpMethodFilter.class})注解，就不会执行方法中的内容，他也就不会使用默认的"_method"来找对应的方法。
+```java
+@Configuration(
+        proxyBeanMethods = false
+)
+@ConditionalOnWebApplication(
+        type = Type.SERVLET
+)
+@ConditionalOnClass({Servlet.class, DispatcherServlet.class, WebMvcConfigurer.class})
+@ConditionalOnMissingBean({WebMvcConfigurationSupport.class})
+@AutoConfigureOrder(-2147483638)
+@AutoConfigureAfter({DispatcherServletAutoConfiguration.class, TaskExecutionAutoConfiguration.class, ValidationAutoConfiguration.class})
+public class WebMvcAutoConfiguration {
+    @Bean
+    @ConditionalOnMissingBean({HiddenHttpMethodFilter.class})
+    @ConditionalOnProperty(
+            prefix = "spring.mvc.hiddenmethod.filter",
+            name = {"enabled"},
+            matchIfMissing = false
+    )
+    public OrderedHiddenHttpMethodFilter hiddenHttpMethodFilter() {
+        return new OrderedHiddenHttpMethodFilter();
+    }
+}
+```
+- 我们就可以在容器中添加一个HiddenHttpMethodFilter组件即可
+    - 创建一个WebConfig.java
+    - 添加HiddenHttpMethodFilter组件
+```java
+@Configuration(proxyBeanMethods = false)
+public class WebConfig {
+
+    @Bean
+    public HiddenHttpMethodFilter hiddenHttpMethodFilter() {
+        HiddenHttpMethodFilter hiddenHttpMethodFilter = new HiddenHttpMethodFilter();
+        hiddenHttpMethodFilter.setMethodParam("_m");
+        return hiddenHttpMethodFilter;
+    }
+
+}
+```
+```java
+public class HiddenHttpMethodFilter extends OncePerRequestFilter {
+    private static final List<String> ALLOWED_METHODS;
+    public static final String DEFAULT_METHOD_PARAM = "_method";
+    private String methodParam = "_method";
+
+    public HiddenHttpMethodFilter() {
+    }
+    // 底层HiddenHttpMethodFilter类提供了设置方法参数的方法，所以我们可以来设置自己的方法参数hiddenHttpMethodFilter.setMethodParam("_m");
+    public void setMethodParam(String methodParam) {
+        Assert.hasText(methodParam, "'methodParam' must not be empty");
+        this.methodParam = methodParam;
+    }
+}
+```
+- 此时我们把请求参数方法改成了 "_m" ，那么我们也需要修改HTML文件内容
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <form action="/user" method="post">
+        <!-- 原生方法参数 -->
+        <input name="_method" type="hidden" value="DELETE"/>
+        <!-- 自定义方法参数 -->
+        <input name="_m" type="hidden" value="DELETE"/>
+        <input value="REST-DELETE 提交" type="submit"/>
+    </form>
+    <br/>
+    <form action="/user" method="post">
+        <!-- 原生方法参数 -->
+        <input name="_method" type="hidden" value="PUT">
+        <!-- 自定义方法参数 -->
+        <input name="_m" type="hidden" value="PUT">
+        <input value="REST-PUT 提交" type="submit"/>
+    </form>
+</body>
+</html>
+```
 
   
 > 普通参数与基本注解
