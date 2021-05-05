@@ -753,6 +753,8 @@ com.zichen.boot.controller.HelloController#getUser()
     - @RequestHeader
         - 写在参数前，获取请求头
     - @ModelAttribute
+    - @RequestAttribute
+        - 获取请求域里的值，具体操作Demo，见RequestController.java中的goToPage()方法
     - @RequestParam
         - 在参数前标注，@RequestParam("name")，标注某个参数，请求调用的时候名字为name
         - @RequestParam(name="id", required=false)
@@ -855,6 +857,7 @@ public class ParameterTestController {
 
 结果：
 {"content":"userName=zhangsan&email=aaaa"}
+
 
 
 > POJO封装过程
