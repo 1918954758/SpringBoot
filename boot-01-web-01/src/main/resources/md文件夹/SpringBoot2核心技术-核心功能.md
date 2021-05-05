@@ -746,9 +746,116 @@ com.zichen.boot.controller.HelloController#getUser()
 
 
 > 普通参数与基本注解
- 
 
- 
+- 注解
+    - @PathVariable
+        - 写在参数前，获取请求路径上的值，需要给一个name要和REST上的{}中的值一样
+    - @RequestHeader
+        - 写在参数前，获取请求头
+    - @ModelAttribute
+    - @RequestParam
+        - 在参数前标注，@RequestParam("name")，标注某个参数，请求调用的时候名字为name
+        - @RequestParam(name="id", required=false)
+          //在参数不存在的情况下，可能希望变量有一个默认值
+          @RequestParam(name="id", required=false, defaultValue="0")
+    - @MatrixVariable
+    - @CookieValue
+        - 写在参数前，获取Cookie，如果没有Cookie会报错，Cookie中的其他字段的名字根据浏览器不同而不同
+    - @RequestBody
+        - 写在参数前，POST请求提交表单获取表单参数
+*测试：@PathVariable*
+```java
+@RestController
+public class ParameterTestController {
+  @GetMapping("/car/{id}/owner/{username}")
+  public Map<String, Object> getCar(@PathVariable("id") Integer id,
+                                    @PathVariable("username") String name,
+                                    @PathVariable Map<String, String> pv,
+                                    @RequestHeader("User-Agent") String userAgent,
+                                    @RequestHeader Map<String, String> header,
+                                    @RequestParam("age") Integer age,
+                                    @RequestParam("inters") List<String> inters,
+                                    @RequestParam Map<String, String> params,
+                                      /*@CookieValue("_ga") String _ga,
+                                      @CookieValue Cookie cookie*/) {
+    Map<String, Object> map = new HashMap<>();
+    map.put("id", id);
+    map.put("name", name);
+    map.put("pv", pv);
+    map.put("userAgent", userAgent);
+    map.put("header", header);
+    map.put("age", age);
+    map.put("inters", inters);
+    map.put("params", params);
+    //map.put("_ga", _ga);
+    //map.put("cookie", cookie);
+    return map;
+  }
+}
+```
+```textmate
+http://localhost:8080/car/3/owner/lisi
+http://localhost:8080/car/3/owner/lisi?age=18&inters=basketball&inters=game
+```
+问题：@CookieValue没有拿到
+*结果：*
+1. {"pv":{"id":"3","username":"lisi"},"name":"lisi","id":3}
+2. {"header":{"host":"localhost:8080","connection":"keep-alive","cache-control":"max-age=0","sec-ch-ua":"\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"90\", \"Microsoft Edge\";v=\"90\"","sec-ch-ua-mobile":"?0","upgrade-insecure-requests":"1","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36 Edg/90.0.818.51","accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9","sec-fetch-site":"same-origin","sec-fetch-mode":"navigate","sec-fetch-user":"?1","sec-fetch-dest":"document","referer":"http://localhost:8080/method.html","accept-encoding":"gzip, deflate, br","accept-language":"zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6"},"userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36 Edg/90.0.818.51"}
+3. {"inters":["basketball","game"],"params":{"age":"18","inters":"basketball"},"age":18}
+
+- Servlet API
+    - WebRequest
+    - ServletRequest
+    - MultipartRequest
+    - HttpSession
+    - javax.servlet.http.PushBuilder
+    - Principal
+    - InputStream
+    - Reader
+    - HttpMethod
+    - Local
+    - TimeZone
+    - Zoneld
+    
+- 复杂参数
+    - Map
+    - Errors/BindingResult
+    - Model
+    - RedirectAttributes
+    - ServletResponse
+    - SessionStatus
+    - UriComponentsBuilder
+    - ServletUriComponentsBuilder
+    
+- 自定义对象参数
+    - 可以自动类型转换与格式化
+    - 可以级联封装。
+*提交表单：@RequestBody*
+```java
+@RestController
+public class ParameterTestController {
+
+    @PostMapping("/save")
+    public Map postMethod(@RequestBody String content) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("content", content);
+        return map;
+    }
+}
+```
+```html
+<form action="/save" method="post">
+    测试@RequestBody获取数据 <br/>
+    用户名：<input name="userName"/><br/>
+    邮箱：<input name="email"/><br/>
+    <input type="submit" value="提交">
+</form>
+```
+![image-测试表单提交@RequestBody](../image/测试表单提交@RequestBody.png)
+
+结果：
+{"content":"userName=zhangsan&email=aaaa"}
+
 
 > POJO封装过程
 
