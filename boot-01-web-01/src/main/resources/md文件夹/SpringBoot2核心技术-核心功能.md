@@ -859,6 +859,8 @@ public class ParameterTestController {
 {"content":"userName=zhangsan&email=aaaa"}
 
 
+-视频看到这里：
+[bilibili-雷丰阳](https://www.bilibili.com/video/BV19K4y1L7MT?p=31&spm_id_from=pageDriver)
 
 > POJO封装过程
 
