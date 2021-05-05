@@ -535,9 +535,216 @@ public class HiddenHttpMethodFilter extends OncePerRequestFilter {
 **请求映射原理**
 ~~~~
 - 请求映射原理（请求如何找到请求的那个方法呢？）
+- 所有请求过来，都要进过DispatcherServlet.java
+- DispatcherServlet.java是所有请求的开始
+- SpringMVC 功能分析都从 org.springframework.web.servlet.DispatcherServlet -> doDispatch() 开始
+```java
+public class DispatcherServlet extends FrameworkServlet {
+    protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        HttpServletRequest processedRequest = request;
+        //处理器执行链
+        HandlerExecutionChain mappedHandler = null;
+        //文件上传功能默认是关闭的
+        boolean multipartRequestParsed = false;
+        //web请求一步管理器
+        WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
+
+        try {
+            try {
+                ModelAndView mv = null;
+                Object dispatchException = null;
+
+                try {
+                    //校验是否是文件上传请求
+                    processedRequest = this.checkMultipart(request);
+                    multipartRequestParsed = processedRequest != request;
+                    //找到当前请求使用那个Handler(Controller的方法)来处理
+                    //请求传递过来一个参数 /user
+                    mappedHandler = this.getHandler(processedRequest);
+                    if (mappedHandler == null) {
+                        this.noHandlerFound(processedRequest, response);
+                        return;
+                    }
+
+                    HandlerAdapter ha = this.getHandlerAdapter(mappedHandler.getHandler());
+                    String method = request.getMethod();
+                    boolean isGet = "GET".equals(method);
+                    if (isGet || "HEAD".equals(method)) {
+                        long lastModified = ha.getLastModified(request, mappedHandler.getHandler());
+                        if ((new ServletWebRequest(request, response)).checkNotModified(lastModified) && isGet) {
+                            return;
+                        }
+                    }
+
+                    if (!mappedHandler.applyPreHandle(processedRequest, response)) {
+                        return;
+                    }
+
+                    mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
+                    if (asyncManager.isConcurrentHandlingStarted()) {
+                        return;
+                    }
+
+                    this.applyDefaultViewName(processedRequest, mv);
+                    mappedHandler.applyPostHandle(processedRequest, response, mv);
+                } catch (Exception var20) {
+                    dispatchException = var20;
+                } catch (Throwable var21) {
+                    dispatchException = new NestedServletException("Handler dispatch failed", var21);
+                }
+
+                this.processDispatchResult(processedRequest, response, mappedHandler, mv, (Exception)dispatchException);
+            } catch (Exception var22) {
+                this.triggerAfterCompletion(processedRequest, response, mappedHandler, var22);
+            } catch (Throwable var23) {
+                this.triggerAfterCompletion(processedRequest, response, mappedHandler, new NestedServletException("Handler processing failed", var23));
+            }
+
+        } finally {
+            if (asyncManager.isConcurrentHandlingStarted()) {
+                if (mappedHandler != null) {
+                    mappedHandler.applyAfterConcurrentHandlingStarted(processedRequest, response);
+                }
+            } else if (multipartRequestParsed) {
+                this.cleanupMultipart(processedRequest);
+            }
+
+        }
+    }
+}
+```
+```java
+public class DispatcherServlet extends FrameworkServlet {
+    protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+        // 处理映射器
+        if (this.handlerMappings != null) {
+            Iterator var2 = this.handlerMappings.iterator();
+
+            while(var2.hasNext()) {
+                HandlerMapping mapping = (HandlerMapping)var2.next();
+                HandlerExecutionChain handler = mapping.getHandler(request);
+                if (handler != null) {
+                    return handler;
+                }
+            }
+        }
+
+        return null;
+    }
+}
+```
+![image-处理映射器](../image/处理映射器.png)
+
+- RequestMapingHandlerMapping: 保存了所有@RequestMapping 和 handler 的映射规则
+![image-handlerMapping请求对应方法](../image/handlerMapping请求对应方法.png)
+
+- 查找那个方法可以处理请求
+```java
+public class DispatcherServlet extends FrameworkServlet {
+    protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+        // 处理映射器
+        // ...
+        HandlerExecutionChain handler = mapping.getHandler(request);
+        // ...
+        return null;
+    }
+}
+```
+- 拿到lookupPath = /user，然后再查找 lookupPath 对应那个处理方法
+```java
+public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping implements InitializingBean {
+    protected HandlerMethod getHandlerInternal(HttpServletRequest request) throws Exception {
+        String lookupPath = this.initLookupPath(request);
+        this.mappingRegistry.acquireReadLock();
+
+        HandlerMethod var4;
+        try {
+            //查找 lookupPath 对应那个处理方法
+            HandlerMethod handlerMethod = this.lookupHandlerMethod(lookupPath, request);
+            var4 = handlerMethod != null ? handlerMethod.createWithResolvedBean() : null;
+        } finally {
+            this.mappingRegistry.releaseReadLock();
+        }
+        return var4;
+    }
+}
+```
+- 执行查找 lookupPath 的对应方法
+```java
+public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping implements InitializingBean {
+    protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request) throws Exception {
+        List<AbstractHandlerMethodMapping<T>.Match> matches = new ArrayList();
+        // 执行这个方法
+        List<T> directPathMatches = this.mappingRegistry.getMappingsByDirectPath(lookupPath);
+    }
+}
+```
+- 然后使用拿到的lookupPath和容器中的进行对比，找到符合 /user 的所有方法
+```java
+public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping implements InitializingBean {
+    public List<T> getMappingsByDirectPath(String urlPath) {
+        return (List)this.pathLookup.get(urlPath);
+    }
+}
+```
+![image-请求中的urlPath和容器中的lookupPath对比](../image/请求中的urlPath和容器中的lookupPath对比.png)
+
+- 返回多个可以处理 lookupPath = /user 的方法
+![image-找到可以处理lookupPath的多个方法](../image/找到可以处理lookupPath的多个方法.png)
+
+- 找到最终可以处理 lookupPath = /user 的那个方法
+```java
+public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping implements InitializingBean {
+    private void addMatchingMappings(Collection<T> mappings, List<AbstractHandlerMethodMapping<T>.Match> matches, HttpServletRequest request) {
+        Iterator var4 = mappings.iterator();
+
+        while(var4.hasNext()) {
+            T mapping = var4.next();
+            // lookupPath 匹配对应方法
+            T match = this.getMatchingMapping(mapping, request);
+            if (match != null) {
+                matches.add(new AbstractHandlerMethodMapping.Match(match, (AbstractHandlerMethodMapping.MappingRegistration)this.mappingRegistry.getRegistrations().get(mapping)));
+            }
+        }
+
+    }
+}
+```
+![image-lookupPath匹配成功对应的某个方法](../image/lookupPath匹配成功对应的某个方法.png)
+
+- 找到对应的请求方法
+/user -> GET
+
+- 再根据 /user  GET 找到对应的方法
+```java
+public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping implements InitializingBean {
+    protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request) throws Exception {
+        // ...
+        // bestMatch.getHandlerMethod() --> com.zichen.boot.controller.HelloController#getUser()
+        request.setAttribute(BEST_MATCHING_HANDLER_ATTRIBUTE, bestMatch.getHandlerMethod());
+        this.handleMatch(bestMatch.mapping, lookupPath, request);
+        //bestMatch.getHandlerMethod() --> com.zichen.boot.controller.HelloController#getUser()
+        return bestMatch.getHandlerMethod();
+    }
+}
+```
+![image-bestMatchDEBUG](../image/bestMatchDEBUG.png)
+
+- 至此，根据请求找到了对应的处理方法
+```properties
+com.zichen.boot.controller.HelloController#getUser()
+```
+
+-- --
+
+- SpringBoot自动配置欢迎页的WelcomePageHandlerMapping。访问 / 能访问到 index.html；
+- SpringBoot自动配置了默认的 RequestMappingHandlerMapping
+- 请求进来，挨个尝试所有的HandlerMapping，看是否有请求信息。
+    - 如果有就找到这个请求对应的handler
+    - 如果没有就找下一个HandlerMapping
+- 如果需要一些自定医德映射处理，我们也可以给容器中方HandlerMapping。
 
 
-  
 > 普通参数与基本注解
  
 
