@@ -862,6 +862,126 @@ public class ParameterTestController {
 -视频看到这里：
 [bilibili-雷丰阳](https://www.bilibili.com/video/BV19K4y1L7MT?p=31&spm_id_from=pageDriver)
 
+
+- @MatrixVariable
+    - /car/{path}/?xxx=xxx&aaa=ccc  这是queryString类型，查询字符串，使用@RequestParam
+    - /car/sell;low=34;brand=byd,audi,yd    这是矩阵变量
+    - 页面开发，如果cookie被禁用了，如何从session中获取值
+    - 我们知道session中有一些值，其中还包括jsessionId，jsessionId是存放在cookie中的，每次发请求都会携带cookie
+    - url重写：吧cookie的值使用矩阵变量的形式重写（/abc;jsessionId=xxx;...）
+    - SpringBoot中矩阵变量是默认关闭的，需要手动开启
+    - 见method.md和
+```java
+class WebMvcAutoConfiguration {
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        if (this.mvcProperties.getPathmatch().getMatchingStrategy() == MatchingStrategy.PATH_PATTERN_PARSER) {
+            configurer.setPatternParser(new PathPatternParser());
+        }
+
+        configurer.setUseSuffixPatternMatch(this.mvcProperties.getPathmatch().isUseSuffixPattern());
+        configurer.setUseRegisteredSuffixPatternMatch(this.mvcProperties.getPathmatch().isUseRegisteredSuffixPattern());
+        this.dispatcherServletPath.ifAvailable((dispatcherPath) -> {
+            String servletUrlMapping = dispatcherPath.getServletUrlMapping();
+            if (servletUrlMapping.equals("/") && this.singleDispatcherServlet()) {
+                UrlPathHelper urlPathHelper = new UrlPathHelper();
+                urlPathHelper.setAlwaysUseFullPath(true);
+                configurer.setUrlPathHelper(urlPathHelper);
+            }
+
+        });
+    }
+}
+```
+```java
+class UrlPathHelper{
+    // 移除请求参数 ; 分号内容 控制变量，默认true - 移除； 
+    private boolean removeSemicolonContent = true;
+
+    /**
+     * Set if ";" (semicolon) content should be stripped from the request URI.
+     * <p>Default is "true".
+     * 设置是否为“;” （分号）内容应从请求URI中删除。
+     * 默认值为“ true”。
+     */
+    public void setRemoveSemicolonContent(boolean removeSemicolonContent) {
+        checkReadOnly();
+        this.removeSemicolonContent = removeSemicolonContent;
+    }
+}
+```
+- 因此，如果想要使用矩阵变量来识别‘;’后面的内容，就需要手动开启
+  1）.
+- 配置类实现WebMvcConfigurer
+```java
+@Configuration(proxyBeanMethods = false)
+public class WebConfig implements WebMvcConfigurer {
+    
+}
+```
+- 重写configurePathMatch方法
+```java
+@Configuration(proxyBeanMethods = false)
+public class WebConfig implements WebMvcConfigurer {
+    // 1. 自己写一个@Bean  // WebMvcConfigurer
+    // 2. 实现WebMvcConfigurer
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        //设置UrlPathHelper方法中的setRemoveSemicolonContent为false
+        UrlPathHelper urlPathHelper = new UrlPathHelper();
+        urlPathHelper.setRemoveSemicolonContent(false);
+        configurer.setUrlPathHelper(urlPathHelper);
+    }
+}
+```
+
+ 2）
+- 手写自己的@Bean（WebMvcConfigurer）
+```java
+@Configuration(proxyBeanMethods = false)
+public class WebConfig {
+
+
+    // 1. 自己写一个@Bean  // WebMvcConfigurer
+    // 2. 实现WebMvcConfigurer
+    @Bean
+    public WebMvcConfigurer webMvcConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void configurePathMatch(PathMatchConfigurer configurer) {
+                UrlPathHelper urlPathHelper = new UrlPathHelper();
+                urlPathHelper.setRemoveSemicolonContent(false);
+                configurer.setUrlPathHelper(urlPathHelper);
+            }
+        };
+    }
+}
+```
+
+测试：
+```java
+@RestController
+public class ParameterTestController {
+    // 1. 语法 /cars/sell;low=34;brand=byd,audi,yd
+    // 2. SpringBoot默认是禁用矩阵变量的，需要手动开启
+    @GetMapping("/cars/{path}")
+    public Map carsSell(@MatrixVariable("low") Integer low,
+                        @MatrixVariable("brand") List<String> brand,
+                        @PathVariable("path") String path) {//矩阵变量是和路径绑定在一起的，英雌需要这样使用
+        Map<String, Object> map = new HashMap<>();
+        map.put("low", low);
+        map.put("brand", brand);
+        map.put("path", path);
+        return map;
+    }
+}
+```
+```html
+<a href="/cars/sell;low=34;brand=byd,audi,yd">@MatrixVariable（矩阵变量）</a>
+```
+结果：
+{"path":"sell","low":34,"brand":["byd","audi","yd"]}
+
+
 > POJO封装过程
 
 

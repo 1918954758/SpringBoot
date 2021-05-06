@@ -47,4 +47,17 @@ public class ParameterTestController {
         map.put("content", content);
         return map;
     }
+
+    // 1. 语法 /cars/sell;low=34;brand=byd,audi,yd
+    // 2. SpringBoot默认是禁用矩阵变量的，需要手动开启
+    @GetMapping("/cars/{path}")
+    public Map carsSell(@MatrixVariable("low") Integer low,
+                        @MatrixVariable("brand") List<String> brand,
+                        @PathVariable("path") String path) {//矩阵变量是和路径绑定在一起的，英雌需要这样使用
+        Map<String, Object> map = new HashMap<>();
+        map.put("low", low);
+        map.put("brand", brand);
+        map.put("path", path);
+        return map;
+    }
 }

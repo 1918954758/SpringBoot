@@ -51,5 +51,13 @@
         邮箱：<input name="email"/><br/>
         <input type="submit" value="提交">
     </form>
+
+    <ol>
+        <li>矩阵变量需要在SpringBoot中手动开启</li>
+        <li>根据RFC3986的规范，矩阵变量应当绑定在路径变量中！</li>
+        <li>若是有多个矩阵变量，应当使用英文符号‘;’进行分割</li>
+        <li>若是一个矩阵变量有多个值，应当使用英文符号‘,’进行分割，或之命名多个重复的key即可</li>
+        <li>如，/car/sell;low=34;brand=byd,audi,yd</li>
+    </ol>
 </body>
 </html>
