@@ -1002,10 +1002,8 @@ class ParameterTestController {
 > POJO封装过程
 
 
-
-
 > 参数处理原理
-
+[各种参数解析原理-雷丰阳](https://www.bilibili.com/video/BV19K4y1L7MT?p=32&spm_id_from=pageDriver)
 
 
 
