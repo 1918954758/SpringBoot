@@ -14,7 +14,7 @@ SpringBoot
   - maven3.6.3
   - gradle6.7.bin
   - SpringBoot2.4.3
-  - SpringBoot2.4.6
+  - SpringBoot2.4.5
 - 笔记做的比较详细，最好集合代码理解会更好
 
 
