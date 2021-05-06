@@ -11,7 +11,7 @@ SpringBoot
 - 环境
   - IDEA2020.3.3
   - jdk1.8
-  - maven3.6.9
+  - maven3.6.3
   - gradle6.7.bin
   - SpringBoot2.4.3
   - SpringBoot2.4.6
