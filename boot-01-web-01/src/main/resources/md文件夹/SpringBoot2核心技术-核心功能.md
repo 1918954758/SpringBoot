@@ -975,12 +975,29 @@ public class ParameterTestController {
     }
 }
 ```
+- 访问路径为：http://localhost:8080/cars/sell;low=34;brand=byd,audi,yd
 ```html
 <a href="/cars/sell;low=34;brand=byd,audi,yd">@MatrixVariable（矩阵变量）</a>
 ```
 结果：
 {"path":"sell","low":34,"brand":["byd","audi","yd"]}
 
+- 如果矩阵变量在路径上多个路段上有相同的变量名，则存在歧义，不知道取得是那个变量
+- 可以使用指定取值
+```java
+class ParameterTestController {
+    //  /boss/1;age=20/2;age=10
+    @GetMapping("/boss/{bossId}/{empId}")
+    public Map boss(@MatrixVariable(value = "age", pathVar = "bossId") Integer bossAge,
+                    @MatrixVariable(value = "age", pathVar = "empId") Integer empAge) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("bossAge", bossAge);
+        map.put("empAge", empAge);
+        return map;
+    }
+}
+```
+- 访问路径为：http://localhost:8080/boss/1;age=20/2;age=10
 
 > POJO封装过程
 

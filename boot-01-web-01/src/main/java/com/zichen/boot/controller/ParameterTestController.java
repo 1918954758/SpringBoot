@@ -60,4 +60,14 @@ public class ParameterTestController {
         map.put("path", path);
         return map;
     }
+
+    //  /boss/1;age=20/2;age=10
+    @GetMapping("/boss/{bossId}/{empId}")
+    public Map boss(@MatrixVariable(value = "age", pathVar = "bossId") Integer bossAge,
+                    @MatrixVariable(value = "age", pathVar = "empId") Integer empAge) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("bossAge", bossAge);
+        map.put("empAge", empAge);
+        return map;
+    }
 }
