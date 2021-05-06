@@ -1003,9 +1003,334 @@ class ParameterTestController {
 
 
 > 参数处理原理
-[各种参数解析原理-雷丰阳](https://www.bilibili.com/video/BV19K4y1L7MT?p=32&spm_id_from=pageDriver)
+[各种参数解析原理-雷丰阳](https://www.bilibili.com/video/BV19K4y1L7MT?p=32)
+- SpringBoot所有请求入口是 DispatcherServlet.java -> doDispatcher()
+**doDispatcher() - step：一**
+```java
+public class DispatcherServlet extends FrameworkServlet {
+    protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        // 拿到请求，找到对应的处理器（handler）
+        mappedHandler = this.getHandler(processedRequest);// processedRequest - 
+        //mappedHandler = HandlerExecutionChain with [com.zichen.boot.controller.ParameterTestController#getCar(Integer, String, Map, String, Map, Integer, List, Map)] and 2 interceptors
+    }
+}
+```
+![image-requestAndHandlerMapping](../image/requestAndHandlerMapping.png)
+*getHandler() - step：1)*
+```java
+public class DispatcherServlet extends FrameworkServlet {
+    protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+        // 从容器中拿到所有的处理映射器 handlerMapping
+        if (this.handlerMappings != null) {
+            Iterator var2 = this.handlerMappings.iterator();//迭代handlerMapping
+            while(var2.hasNext()) {
+                HandlerMapping mapping = (HandlerMapping)var2.next();
+                //根据请求，找到对应的处理器
+                HandlerExecutionChain handler = mapping.getHandler(request);
+                if (handler != null) {
+                    return handler;
+                }
+            }
+        }
+        return null;
+    }
+}
+public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport implements HandlerMapping, Ordered, BeanNameAware {
+    public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+        // 根据lookupPath = /car/3/owner/lisi 找到对应的请求方法 ： handler = HandlerExecutionChain with [com.zichen.boot.controller.ParameterTestController#getCar(Integer, String, Map, String, Map, Integer, List, Map)] and 2 interceptors
+        Object handler = this.getHandlerInternal(request);
+        return handler;
+    }
+}
+```
 
+**doDispatcher() - step：二**
+```java
+public class DispatcherServlet extends FrameworkServlet {
+    protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        //mappedHandler = this.getHandler(processedRequest);  = HandlerExecutionChain with [com.zichen.boot.controller.ParameterTestController#getCar(Integer, String, Map, String, Map, Integer, List, Map)] and 2 interceptors
+        HandlerAdapter ha = this.getHandlerAdapter(mappedHandler.getHandler());
+        //拿到 handler = com.zichen.boot.controller.ParameterTestController#getCar(Integer, String, Map, String, Map, Integer, List, Map)
+        //ha = 处理适配器  （根据处理器获取处理适配器）
+    }
+}
+```
+*getHandlerAdapter() - step：1)*
+```java
+//获取处理适配器
+public class DispatcherServlet extends FrameworkServlet {
+    protected HandlerAdapter getHandlerAdapter(Object handler) throws ServletException {
+        //从容器中拿到所有的处理适配器
+        if (this.handlerAdapters != null) {
+            Iterator var2 = this.handlerAdapters.iterator();//迭代所有的处理适配器
 
+            while(var2.hasNext()) {
+                HandlerAdapter adapter = (HandlerAdapter)var2.next();
+                // handler = com.zichen.boot.controller.ParameterTestController#getCar(Integer, String, Map, String, Map, Integer, List, Map)
+                // adapter = RequestMappingHandlerAdapter@6956
+                if (adapter.supports(handler)) {//找到适合处理当前请求的处理适配器
+                    // 因此，最终找到可以处理当前请求的适配器 adapter = RequestMappingHandlerAdapter@6956
+                    return adapter;
+                }
+                //adapter.supports(handler) ==>
+            }
+        }
+        throw new ServletException("No adapter for handler [" + handler + "]: The DispatcherServlet configuration needs to include a HandlerAdapter that supports this handler");
+    }
+}
+public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator implements HandlerAdapter, Ordered {
+    // 适配当前处理适配器 返回true - 适配；返回 false - 不适配
+    public final boolean supports(Object handler) {
+        // handler 自然是 HandlerMethod 类型
+        // this.supportsInternal((HandlerMethod)handler) = true
+        return handler instanceof HandlerMethod && this.supportsInternal((HandlerMethod)handler); 
+    }
+}
+public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter implements BeanFactoryAware, InitializingBean {
+    protected boolean supportsInternal(HandlerMethod handlerMethod) {
+        return true;
+    }
+}
+```
+![image-容器中所有的处理适配器](../image/容器中所有的处理适配器.png)
+
+![image-handler属于HandlerMethod](../image/handler属于HandlerMethod.png)
+
+**doDispatcher() - step：三**
+```java
+public class DispatcherServlet extends FrameworkServlet {
+    protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        //mappedHandler = this.getHandler(processedRequest);
+        //HandlerAdapter ha = this.getHandlerAdapter(mappedHandler.getHandler());
+        mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
+    }
+}
+```
+*handle() - step：1)*
+```java
+public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator implements HandlerAdapter, Ordered {
+    public final ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        return this.handleInternal(request, response, (HandlerMethod)handler);//内部处理
+    }
+}
+```
+```java
+public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter implements BeanFactoryAware, InitializingBean {
+    protected ModelAndView handleInternal(HttpServletRequest request, HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
+        ModelAndView mav;
+        if (this.synchronizeOnSession) {
+            //session 处理
+        } else {
+            //执行处理方法
+            mav = this.invokeHandlerMethod(request, response, handlerMethod);
+        }
+    }
+    protected ModelAndView invokeHandlerMethod(HttpServletRequest request, HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
+        ServletWebRequest webRequest = new ServletWebRequest(request, response);
+
+        Object result;
+        try {
+            WebDataBinderFactory binderFactory = this.getDataBinderFactory(handlerMethod);
+            ModelFactory modelFactory = this.getModelFactory(handlerMethod, binderFactory);
+            ServletInvocableHandlerMethod invocableMethod = this.createInvocableHandlerMethod(handlerMethod);
+            // 拿到容器中所有的参数解释器（27个），以及容器缓冲该请求方法的所有参数解释器（9个 有一个重复）
+            if (this.argumentResolvers != null) {
+                invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);
+            }
+            // 拿到容器中所有的返回值处理器（15个）
+            if (this.returnValueHandlers != null) {
+                invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlers);
+            }
+        } finally {
+            //webRequest.requestCompleted();
+        }
+        return (ModelAndView)result;
+    }
+}
+```
+![image-参数解释器](../image/argumentResolvers.png)
+
+![image-返回值处理器](../image/returnValueHandlers.png)
+```java
+public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
+    public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer, Object... providedArgs) throws Exception {
+        // 执行请求 , 返回请求方法的返回值
+        Object returnValue = this.invokeForRequest(webRequest, mavContainer, providedArgs);
+    }
+}
+public class InvocableHandlerMethod extends HandlerMethod {
+    public Object invokeForRequest(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer, Object... providedArgs) throws Exception {
+        // 获取请求的方法的参数的值
+        Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);
+        if (logger.isTraceEnabled()) {
+            logger.trace("Arguments: " + Arrays.toString(args));
+        }
+        return doInvoke(args);
+    }
+    // 给请求方法中的各个参数匹配请求路径上的对应的值
+    protected Object[] getMethodArgumentValues(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer, Object... providedArgs) throws Exception {
+        MethodParameter[] parameters = getMethodParameters();
+        if (ObjectUtils.isEmpty(parameters)) {
+            return EMPTY_ARGS;
+        }
+
+        Object[] args = new Object[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            MethodParameter parameter = parameters[i];
+            parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
+            args[i] = findProvidedArgument(parameter, providedArgs);
+            if (args[i] != null) {
+                continue;
+            }
+            if (!this.resolvers.supportsParameter(parameter)) {
+                throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
+            }
+            try {
+                args[i] = this.resolvers.resolveArgument(parameter, mavContainer, request, this.dataBinderFactory);
+            }
+            catch (Exception ex) {
+                // Leave stack trace for later, exception may actually be resolved and handled...
+                if (logger.isDebugEnabled()) {
+                    String exMsg = ex.getMessage();
+                    if (exMsg != null && !exMsg.contains(parameter.getExecutable().toGenericString())) {
+                        logger.debug(formatArgumentError(parameter, exMsg));
+                    }
+                }
+                throw ex;
+            }
+        }
+        return args;
+    }
+}
+```
+![image-给对应请求方法的各个参数匹配对应的值](../image/给对应请求方法的各个参数匹配对应的值.png)
+
+- 请求方法的参数赋上对应的值，然后执行请求方法中的内容
+```java
+class NativeMethodAccessorImpl extends MethodAccessorImpl {
+    public Object invoke(Object var1, Object[] var2) throws IllegalArgumentException, InvocationTargetException {
+        if (++this.numInvocations > ReflectionFactory.inflationThreshold() && !ReflectUtil.isVMAnonymousClass(this.method.getDeclaringClass())) {
+            MethodAccessorImpl var3 = (MethodAccessorImpl)(new MethodAccessorGenerator()).generateMethod(this.method.getDeclaringClass(), this.method.getName(), this.method.getParameterTypes(), this.method.getReturnType(), this.method.getExceptionTypes(), this.method.getModifiers());
+            this.parent.setDelegate(var3);
+        }
+        // 执行请求方法体
+        return invoke0(this.method, var1, var2);
+    }
+}
+```
+![image-请求方法返回值](../image/请求方法返回值.png)
+```java
+public class ParameterTestController {
+    @GetMapping("/car/{id}/owner/{username}")
+    public Map<String, Object> getCar(@PathVariable("id") Integer id,
+                                      @PathVariable("username") String name,
+                                      @PathVariable Map<String, String> pv,
+                                      @RequestHeader("User-Agent") String userAgent,
+                                      @RequestHeader Map<String, String> header,
+                                      @RequestParam("age") Integer age,
+                                      @RequestParam("inters") List<String> inters,
+                                      @RequestParam Map<String, String> params
+                                      /*@CookieValue("_ga") String _ga,
+                                      @CookieValue Cookie cookie*/) {
+        // new NativeMethodAccessorImpl().invoke0(this.method, var1, var2);
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", id);
+        map.put("name", name);
+        map.put("pv", pv);
+        map.put("userAgent", userAgent);
+        map.put("header", header);
+        map.put("age", age);
+        map.put("inters", inters);
+        map.put("params", params);
+        //map.put("_ga", _ga);
+        //map.put("cookie", cookie);
+        return map;
+    }
+}
+```
+- 处理返回值
+```java
+public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
+    public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer, Object... providedArgs) throws Exception {
+        // 执行请求， 返回请求方法返回值（map）
+        Object returnValue = this.invokeForRequest(webRequest, mavContainer, providedArgs);
+        this.setResponseStatus(webRequest);
+        if (returnValue == null) {
+            if (this.isRequestNotModified(webRequest) || this.getResponseStatus() != null || mavContainer.isRequestHandled()) {
+                this.disableContentCachingIfNecessary(webRequest);
+                mavContainer.setRequestHandled(true);
+                return;
+            }
+        } else if (StringUtils.hasText(this.getResponseStatusReason())) {
+            mavContainer.setRequestHandled(true);
+            return;
+        }
+
+        mavContainer.setRequestHandled(false);
+        Assert.state(this.returnValueHandlers != null, "No return value handlers");
+
+        try {
+            // 处理返回值
+            this.returnValueHandlers.handleReturnValue(returnValue, this.getReturnValueType(returnValue), mavContainer, webRequest);
+        } catch (Exception var6) {
+            if (logger.isTraceEnabled()) {
+                logger.trace(this.formatErrorForReturnValue(returnValue), var6);
+            }
+
+            throw var6;
+        }
+    }
+}
+```
+```java
+public class HandlerMethod {
+    public MethodParameter getReturnValueType(@Nullable Object returnValue) {
+        return new ReturnValueMethodParameter(returnValue);
+    }
+}
+```
+**doDispatcher() - step：三**
+```java
+public class DispatcherServlet extends FrameworkServlet {
+    protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        //mappedHandler = this.getHandler(processedRequest);
+        //HandlerAdapter ha = this.getHandlerAdapter(mappedHandler.getHandler());
+        //mv = ha.handle(processedRequest, response, mappedHandler.getHandler()); mv = null
+        this.applyDefaultViewName(processedRequest, mv);
+        mappedHandler.applyPostHandle(processedRequest, response, mv);
+        this.processDispatchResult(processedRequest, response, mappedHandler, mv, (Exception)dispatchException);
+    }
+}
+```
+*applyPostHandle() - step：1)*
+```java
+public class HandlerExecutionChain {
+    void applyPostHandle(HttpServletRequest request, HttpServletResponse response, @Nullable ModelAndView mv) throws Exception {
+        for(int i = this.interceptorList.size() - 1; i >= 0; --i) {
+            // 处理拦截器 有请求相关的拦截  /wapper/**   /**
+            HandlerInterceptor interceptor = (HandlerInterceptor)this.interceptorList.get(i);
+            interceptor.postHandle(request, response, this.handler, mv);
+        }
+
+    }
+}
+```
+![image-获得拦截器](../image/获得拦截器.png)
+
+**doDispatch() - step：四**
+```java
+public class DispatcherServlet extends FrameworkServlet {
+    protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        //mappedHandler = this.getHandler(processedRequest);
+        //HandlerAdapter ha = this.getHandlerAdapter(mappedHandler.getHandler());
+        //mv = ha.handle(processedRequest, response, mappedHandler.getHandler()); mv = null
+        //this.applyDefaultViewName(processedRequest, mv);
+        //mappedHandler.applyPostHandle(processedRequest, response, mv);
+        this.processDispatchResult(processedRequest, response, mappedHandler, mv, (Exception)dispatchException);
+    }
+}
+```
+-至此，请求方法，解析参数，处理返回结果完成，视图解析后续更新
 
 
 ### 2.3. 数据响应与内容协商
