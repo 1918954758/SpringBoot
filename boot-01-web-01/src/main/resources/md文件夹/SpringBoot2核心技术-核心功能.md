@@ -1519,24 +1519,109 @@ public class DispatcherServlet extends FrameworkServlet {
     - HttpMethod
     - Local
     - TimeZone
-    - Zoneld
+    - ZoneId
 
+- 这些参数的处理，最终会拿到参数解析器(ServletRequestMethodArgumentResolver)
+- 然后获取对应参数的类型，进行判断
 
-
-
-
+```java
+public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgumentResolver {
+    @Nullable
+    private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parameter) {
+        HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
+        if (result == null) {
+            for (HandlerMethodArgumentResolver resolver : this.argumentResolvers) {
+                // 第一次会进行适配，第二次会从换从中拿对应的参数解析器
+                if (resolver.supportsParameter(parameter)) {
+                    result = resolver;
+                    this.argumentResolverCache.put(parameter, result);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+}
+public class ServletRequestMethodArgumentResolver implements HandlerMethodArgumentResolver {
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        Class<?> paramType = parameter.getParameterType();
+        return (WebRequest.class.isAssignableFrom(paramType) ||
+                ServletRequest.class.isAssignableFrom(paramType) ||
+                MultipartRequest.class.isAssignableFrom(paramType) ||
+                HttpSession.class.isAssignableFrom(paramType) ||
+                (pushBuilder != null && pushBuilder.isAssignableFrom(paramType)) ||
+                (Principal.class.isAssignableFrom(paramType) && !parameter.hasParameterAnnotations()) ||
+                InputStream.class.isAssignableFrom(paramType) ||
+                Reader.class.isAssignableFrom(paramType) ||
+                HttpMethod.class == paramType ||
+                Locale.class == paramType ||
+                TimeZone.class == paramType ||
+                ZoneId.class == paramType);
+    }
+}
+```
 
 -------------------
 
 - 复杂参数
     - Map
-    - Errors/BindingResult
     - Model
+    -- Map、Model 作为参数，都是向Request域中放数据，可以使用request.getAttribute("xxx");来获取
+    - Errors/BindingResult
     - RedirectAttributes
     - ServletResponse
     - SessionStatus
     - UriComponentsBuilder
     - ServletUriComponentsBuilder
+**测试 Map/Model作为参数，向里面传值，其实就是想request域中放值，将来从request域中获取值即可**
+
+```java
+@Controller
+public class RequestController {
+
+    @GetMapping("/param")
+    public String testParam(Map<String, Object> map,
+                            Model model,
+                            HttpServletRequest httpServletRequest,
+                            HttpServletResponse httpServletResponse) {
+        map.put("map", "map_setValue");
+        model.addAttribute("model", "model_addValue");
+        httpServletRequest.setAttribute("httpServletRequest", "httpServletRequest_setValue");
+
+        Cookie cookie = new Cookie("cookie_key", "cookie_value");
+        httpServletResponse.addCookie(cookie);
+        return "forward:/success";
+    }
+
+    @ResponseBody
+    @GetMapping("/success")
+    public Map success(@RequestAttribute(value = "msg", required = false) String msg,
+                       @RequestAttribute(value = "code", required = false) Integer code,
+                       HttpServletRequest request) {
+        Object msg1 = request.getAttribute("msg");
+        Map<String, Object> map = new HashMap<>();
+        map.put("reMethod_msg", msg1);
+        map.put("annotation_msg1", msg);
+        map.put("annotation_msg2", code);
+
+        map.put("map", request.getAttribute("map"));
+        map.put("model", request.getAttribute("model"));
+        map.put("httpServletRequest", request.getAttribute("httpServletRequest"));
+        return map;
+    }
+}
+```
+
+```text
+http://localhost:8080/param
+```
+
+```text
+测试结果：
+{"reMethod_msg":null,"model":"model_addValue","annotation_msg1":null,"httpServletRequest":"httpServletRequest_setValue","annotation_msg2":null,"map":"map_setValue"}
+```
+
 
 - 自定义对象参数
     - 可以自动类型转换与格式化

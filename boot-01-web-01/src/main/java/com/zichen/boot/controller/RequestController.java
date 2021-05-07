@@ -1,12 +1,14 @@
 package com.zichen.boot.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,17 +28,34 @@ public class RequestController {
         return "forward:success"; //转发到 /success请求
     }
 
+    @GetMapping("/param")
+    public String testParam(Map<String, Object> map,
+                            Model model,
+                            HttpServletRequest httpServletRequest,
+                            HttpServletResponse httpServletResponse) {
+        map.put("map", "map_setValue");
+        model.addAttribute("model", "model_addValue");
+        httpServletRequest.setAttribute("httpServletRequest", "httpServletRequest_setValue");
+
+        Cookie cookie = new Cookie("cookie_key", "cookie_value");
+        httpServletResponse.addCookie(cookie);
+        return "forward:/success";
+    }
+
     @ResponseBody
     @GetMapping("/success")
-    public Map success(@RequestAttribute("msg") String msg,
-                       @RequestAttribute("code") Integer code,
+    public Map success(@RequestAttribute(value = "msg", required = false) String msg,
+                       @RequestAttribute(value = "code", required = false) Integer code,
                        HttpServletRequest request) {
         Object msg1 = request.getAttribute("msg");
         Map<String, Object> map = new HashMap<>();
         map.put("reMethod_msg", msg1);
         map.put("annotation_msg1", msg);
         map.put("annotation_msg2", code);
+
+        map.put("map", request.getAttribute("map"));
+        map.put("model", request.getAttribute("model"));
+        map.put("httpServletRequest", request.getAttribute("httpServletRequest"));
         return map;
     }
-
 }
