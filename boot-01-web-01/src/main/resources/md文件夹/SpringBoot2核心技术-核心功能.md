@@ -1016,6 +1016,8 @@ public class DispatcherServlet extends FrameworkServlet {
 }
 ```
 ![image-requestAndHandlerMapping](../image/requestAndHandlerMapping.png)
+
+*所谓 handler 就是封装了目标方法的一些信息*
 *getHandler() - step：1)*
 ```java
 public class DispatcherServlet extends FrameworkServlet {
@@ -1055,6 +1057,7 @@ public class DispatcherServlet extends FrameworkServlet {
     }
 }
 ```
+*getHandlerAdapter():相当于是一个大的反射工具，里面会去调目标方法，确定一些列参数的值，以及其他信息，先拿到适配器，再用适配器调用handle()*
 *getHandlerAdapter() - step：1)*
 ```java
 //获取处理适配器
@@ -1102,7 +1105,8 @@ public class DispatcherServlet extends FrameworkServlet {
     protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
         //mappedHandler = this.getHandler(processedRequest);
         //HandlerAdapter ha = this.getHandlerAdapter(mappedHandler.getHandler());
-        mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
+        // Actually invoke the handler
+        mv = ha.hanhadle(processedRequest, response, mappedHandler.getHandler());
     }
 }
 ```
@@ -1135,10 +1139,12 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
             ServletInvocableHandlerMethod invocableMethod = this.createInvocableHandlerMethod(handlerMethod);
             // 拿到容器中所有的参数解释器（27个），以及容器缓冲该请求方法的所有参数解释器（9个 有一个重复）
             if (this.argumentResolvers != null) {
+                // 为目标方法设置参数解析器，将来确定目标方法每个参数的值
                 invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);
             }
             // 拿到容器中所有的返回值处理器（15个）
             if (this.returnValueHandlers != null) {
+                //为目标方法返回值设置处理器，将来将返回值封装成视图返回页面展示
                 invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlers);
             }
         } finally {
@@ -1160,14 +1166,51 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 }
 public class InvocableHandlerMethod extends HandlerMethod {
     public Object invokeForRequest(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer, Object... providedArgs) throws Exception {
-        // 获取请求的方法的参数的值
+        // 从请求中获取请求的方法的参数的值
+        // args 存了目标方法所有参数的值
         Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);
         if (logger.isTraceEnabled()) {
             logger.trace("Arguments: " + Arrays.toString(args));
         }
+        // 将目标方法参数和请求中的值一一对应起来
         return doInvoke(args);
     }
-    // 给请求方法中的各个参数匹配请求路径上的对应的值
+    public class InvocableHandlerMethod extends HandlerMethod {
+        protected Object doInvoke(Object... args) throws Exception {
+            Method method = getBridgedMethod();
+            ReflectionUtils.makeAccessible(method);
+            try {
+                if (KotlinDetector.isSuspendingFunction(method)) {
+                    return CoroutinesUtils.invokeSuspendingFunction(method, getBean(), args);
+                }
+                // getBean() -> 目标方法对象
+                // args -> 请求中的所有参数（List<String>）
+                return method.invoke(getBean(), args);
+            }
+        }
+    }
+    public final class Method extends Executable {
+        @CallerSensitive
+        public Object invoke(Object obj, Object... args)
+                throws IllegalAccessException, IllegalArgumentException,
+                InvocationTargetException
+        {
+            if (!override) {
+                if (!Reflection.quickCheckMemberAccess(clazz, modifiers)) {
+                    Class<?> caller = Reflection.getCallerClass();
+                    checkAccess(caller, clazz, obj, modifiers);
+                }
+            }
+            // ma = public java.util.Map com.zichen.boot.controller.ParameterTestController.getCar(java.lang.Integer,java.lang.String,java.util.Map,java.lang.String,java.util.Map,java.lang.Integer,java.util.List,java.util.Map)
+            MethodAccessor ma = methodAccessor;             // read volatile
+            if (ma == null) {
+                ma = acquireMethodAccessor();
+            }
+            // 一一匹配
+            return ma.invoke(obj, args);//NativeMethodAccessorImpl.invoke(...)...
+        }
+    }
+    // 给请求方法中的各个参数匹配请求路径上的对应的值 
     protected Object[] getMethodArgumentValues(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer, Object... providedArgs) throws Exception {
         MethodParameter[] parameters = getMethodParameters();
         if (ObjectUtils.isEmpty(parameters)) {
@@ -1181,12 +1224,14 @@ public class InvocableHandlerMethod extends HandlerMethod {
             args[i] = findProvidedArgument(parameter, providedArgs);
             if (args[i] != null) {
                 continue;
-            }
-            if (!this.resolvers.supportsParameter(parameter)) {
                 throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
-            }
+            } }
+            // 确定 27个参数解析器，那个可以解析 当前这种参数，或者说可不可以支持当前这种参数，全不支持抛异常
+            if (!this.resolvers.supportsParameter(parameter)) {
+                
             try {
-                args[i] = this.resolvers.resolveArgument(parameter, mavContainer, request, this.dataBinderFactory);
+                // 解析请求中参数，获取的值，放到List中
+                args[i] = this.resolvers.resolveArgument(parameter, mavContainer, request, this.dataBinderFactory);// 执行 1286L resolveArgument()
             }
             catch (Exception ex) {
                 // Leave stack trace for later, exception may actually be resolved and handled...
@@ -1199,7 +1244,159 @@ public class InvocableHandlerMethod extends HandlerMethod {
                 throw ex;
             }
         }
+        // 获得参数信息，List<String>
         return args;
+    }
+}
+// 1. 确定当前参数是否被支持解析
+public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgumentResolver {
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        // 确定当前参数是否可以被 27中解析器中的一种来支持，返回 true  or  false
+        return getArgumentResolver(parameter) != null;
+    }
+}
+
+public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgumentResolver {
+    private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parameter) {
+        HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
+        if (result == null) {
+            // 对27个参数解析器挨个遍历
+            for (HandlerMethodArgumentResolver resolver : this.argumentResolvers) {
+                // 判断这27个参数解析器，那个可以支持当前参数？
+                if (resolver.supportsParameter(parameter)) {
+                    // 匹配成功，结束循环返回匹配的参数解析器
+                    result = resolver;
+                    this.argumentResolverCache.put(parameter, result);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+}
+
+public interface HandlerMethodArgumentResolver {
+    // 有28中实现，不同的参数解析器，执行不同的实现
+    // 返回对应的参数解析器
+    boolean supportsParameter(MethodParameter parameter);
+}
+// 2. 解析参数
+public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgumentResolver {
+    public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
+        // 获取对应的参数解析器
+        HandlerMethodArgumentResolver resolver = getArgumentResolver(parameter);
+        if (resolver == null) {
+            throw new IllegalArgumentException("Unsupported parameter type [" +
+                    parameter.getParameterType().getName() + "]. supportsParameter should be called first.");
+        }
+        // 解析请求中的值 resolver.resolveArgument(parameter, mavContainer, webRequest, binderFactory) = "3"   （一个值）
+        return resolver.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
+    }
+}
+// 真正解析参数的地方
+public abstract class AbstractNamedValueMethodArgumentResolver implements HandlerMethodArgumentResolver {
+    public final Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+                                        NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
+        // 根据当前参数，获取该参数名信息
+        NamedValueInfo namedValueInfo = getNamedValueInfo(parameter);
+        MethodParameter nestedParameter = parameter.nestedIfOptional();
+        // 获取参数名 
+        Object resolvedName = resolveEmbeddedValuesAndExpressions(namedValueInfo.name);
+        if (resolvedName == null) {
+            throw new IllegalArgumentException(
+                    "Specified name must not resolve to null: [" + namedValueInfo.name + "]");
+        }
+
+        // 解析该参数，从请求中获取对应的值  arg = 3
+        Object arg = resolveName(resolvedName.toString(), nestedParameter, webRequest);
+        if (arg == null) {
+            if (namedValueInfo.defaultValue != null) {
+                arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
+            }
+            else if (namedValueInfo.required && !nestedParameter.isOptional()) {
+                handleMissingValue(namedValueInfo.name, nestedParameter, webRequest);
+            }
+            arg = handleNullValue(namedValueInfo.name, arg, nestedParameter.getNestedParameterType());
+        }
+        else if ("".equals(arg) && namedValueInfo.defaultValue != null) {
+            arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
+        }
+
+        if (binderFactory != null) {
+            WebDataBinder binder = binderFactory.createBinder(webRequest, null, namedValueInfo.name);
+            try {
+                arg = binder.convertIfNecessary(arg, parameter.getParameterType(), parameter);
+            }
+            catch (ConversionNotSupportedException ex) {
+                throw new MethodArgumentConversionNotSupportedException(arg, ex.getRequiredType(),
+                        namedValueInfo.name, parameter, ex.getCause());
+            }
+            catch (TypeMismatchException ex) {
+                throw new MethodArgumentTypeMismatchException(arg, ex.getRequiredType(),
+                        namedValueInfo.name, parameter, ex.getCause());
+            }
+            // Check for null value after conversion of incoming argument value
+            if (arg == null && namedValueInfo.defaultValue == null &&
+                    namedValueInfo.required && !nestedParameter.isOptional()) {
+                handleMissingValueAfterConversion(namedValueInfo.name, nestedParameter, webRequest);
+            }
+        }
+        // 处理解析值
+        handleResolvedValue(arg, namedValueInfo.name, parameter, mavContainer, webRequest);
+        
+        return arg;
+    }
+}
+public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethodArgumentResolver
+        implements UriComponentsContributor {
+    @Override
+    @SuppressWarnings("unchecked")
+    @Nullable
+    protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {
+        // 获取请求中的属性    uriTemplateVars = {"id": "3", "username": "lisi"}
+        Map<String, String> uriTemplateVars = (Map<String, String>) request.getAttribute(
+                HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
+        // return uriTemplateVars.get("id") = 3
+        return (uriTemplateVars != null ? uriTemplateVars.get(name) : null);
+    }
+}
+public class ServletRequestAttributes extends AbstractRequestAttributes {
+    @Override
+    public Object getAttribute(String name, int scope) {
+        if (scope == SCOPE_REQUEST) {
+            if (!isRequestActive()) {
+                throw new IllegalStateException(
+                        "Cannot ask for request attribute - request is not active anymore!");
+            }
+            // 解析请求路径，获取路径上的变量，再将这些变量返回
+            // request - R( /car/3/owner/lisi)
+            // return (LinkedHashMap<String, String>()) Object = {"id": "3", "username": "lisi"}
+            return this.request.getAttribute(name);
+        } else {
+            // ...
+        }
+    }
+}
+// 处理解析值
+public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethodArgumentResolver
+        implements UriComponentsContributor {
+    @Override
+    @SuppressWarnings("unchecked")
+    protected void handleResolvedValue(@Nullable Object arg, String name, MethodParameter parameter,
+                                       @Nullable ModelAndViewContainer mavContainer, NativeWebRequest request) {
+
+        String key = View.PATH_VARIABLES;
+        int scope = RequestAttributes.SCOPE_REQUEST;
+        Map<String, Object> pathVars = (Map<String, Object>) request.getAttribute(key, scope);
+        if (pathVars == null) {
+            pathVars = new HashMap<>();
+            // 将Map 放到请求域中
+            request.setAttribute(key, pathVars, scope);
+        }
+        // 给请求域中的map赋值 name = "id", arg = 3
+        pathVars.put(name, arg);
     }
 }
 ```
