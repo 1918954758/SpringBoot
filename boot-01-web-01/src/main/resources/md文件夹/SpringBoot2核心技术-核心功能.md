@@ -805,33 +805,7 @@ http://localhost:8080/car/3/owner/lisi?age=18&inters=basketball&inters=game
 2. {"header":{"host":"localhost:8080","connection":"keep-alive","cache-control":"max-age=0","sec-ch-ua":"\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"90\", \"Microsoft Edge\";v=\"90\"","sec-ch-ua-mobile":"?0","upgrade-insecure-requests":"1","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36 Edg/90.0.818.51","accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9","sec-fetch-site":"same-origin","sec-fetch-mode":"navigate","sec-fetch-user":"?1","sec-fetch-dest":"document","referer":"http://localhost:8080/method.html","accept-encoding":"gzip, deflate, br","accept-language":"zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6"},"userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36 Edg/90.0.818.51"}
 3. {"inters":["basketball","game"],"params":{"age":"18","inters":"basketball"},"age":18}
 
-- Servlet API
-    - WebRequest
-    - ServletRequest
-    - MultipartRequest
-    - HttpSession
-    - javax.servlet.http.PushBuilder
-    - Principal
-    - InputStream
-    - Reader
-    - HttpMethod
-    - Local
-    - TimeZone
-    - Zoneld
-    
-- 复杂参数
-    - Map
-    - Errors/BindingResult
-    - Model
-    - RedirectAttributes
-    - ServletResponse
-    - SessionStatus
-    - UriComponentsBuilder
-    - ServletUriComponentsBuilder
-    
-- 自定义对象参数
-    - 可以自动类型转换与格式化
-    - 可以级联封装。
+
 *提交表单：@RequestBody*
 ```java
 @RestController
@@ -1529,6 +1503,38 @@ public class DispatcherServlet extends FrameworkServlet {
 ```
 -至此，请求方法，解析参数，处理返回结果完成，视图解析后续更新
 
+- Servlet API
+    - WebRequest
+    - ServletRequest
+    - MultipartRequest
+    - HttpSession
+    - javax.servlet.http.PushBuilder
+    - Principal
+    - InputStream
+    - Reader
+    - HttpMethod
+    - Local
+    - TimeZone
+    - Zoneld
+
+
+
+
+
+
+- 复杂参数
+    - Map
+    - Errors/BindingResult
+    - Model
+    - RedirectAttributes
+    - ServletResponse
+    - SessionStatus
+    - UriComponentsBuilder
+    - ServletUriComponentsBuilder
+
+- 自定义对象参数
+    - 可以自动类型转换与格式化
+    - 可以级联封装。
 
 ### 2.3. 数据响应与内容协商
 >
