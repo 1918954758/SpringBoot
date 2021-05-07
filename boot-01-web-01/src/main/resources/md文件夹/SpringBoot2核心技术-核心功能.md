@@ -1621,7 +1621,27 @@ http://localhost:8080/param
 测试结果：
 {"reMethod_msg":null,"model":"model_addValue","annotation_msg1":null,"httpServletRequest":"httpServletRequest_setValue","annotation_msg2":null,"map":"map_setValue"}
 ```
+**Map Model作为参数，底层核心代码：**
 
+```text
+- DispatcherServlet 
+    -> doDispatch() 
+    -> (参数解析完成，返回视图) 
+    -> processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
+        // Did the handler return a view to render?
+        -> render(mv, request, response);
+            // mv.getModelInternal() = {"map": "map_setValue", "model": "model_setValue"}
+            -> view.render(mv.getModelInternal(), request, response);
+                // 创建一个合并的输出模型 mergedModel = {"map": "map_setValue", "model": "model_setValue", ...}
+                -> Map<String, Object> mergedModel = createMergedOutputModel(model, request, response); (AbstractView.render(.., .., ..))
+                    -> 一些列的合并操作。
+           -> renderMergedOutputModel(mergedModel, getRequestToExpose(request), response); (AbstractView.render(.., .., ..))
+                // 暴露模型作为请求属性
+                -> exposeModelAsRequestAttributes(model, request); (InternalResourceView.renderMergedOutputModel())
+                    -> request.setAttribute(name, value); (AbstractView.exposeModelAsRequestAttributes())
+                // 如果有请求转发，则会执行
+                -> rd.forward(request, response);
+```
 
 - 自定义对象参数
     - 可以自动类型转换与格式化

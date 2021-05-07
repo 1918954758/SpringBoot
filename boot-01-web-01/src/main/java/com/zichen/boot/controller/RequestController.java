@@ -39,7 +39,7 @@ public class RequestController {
 
         Cookie cookie = new Cookie("cookie_key", "cookie_value");
         httpServletResponse.addCookie(cookie);
-        return "forward:/success";
+        return "forward:/success";//forward:/success   --  视图名
     }
 
     @ResponseBody
