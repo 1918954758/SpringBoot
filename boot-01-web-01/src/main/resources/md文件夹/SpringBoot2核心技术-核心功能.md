@@ -1631,7 +1631,7 @@ http://localhost:8080/param
         // Did the handler return a view to render?
         -> render(mv, request, response);
             // mv.getModelInternal() = {"map": "map_setValue", "model": "model_setValue"}
-            -> view.render(mv.getModelInternal(), request, response);
+           -> view.render(mv.getModelInternal(), request, response);
                 // 创建一个合并的输出模型 mergedModel = {"map": "map_setValue", "model": "model_setValue", ...}
                 -> Map<String, Object> mergedModel = createMergedOutputModel(model, request, response); (AbstractView.render(.., .., ..))
                     -> 一些列的合并操作。
