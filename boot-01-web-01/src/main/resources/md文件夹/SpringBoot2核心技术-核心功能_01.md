@@ -1646,68 +1646,351 @@ http://localhost:8080/param
 - 自定义对象参数
     - 可以自动类型转换与格式化
     - 可以级联封装。
+**自定义对象测试：**
 
-### 2.3. 数据响应与内容协商
->
+1) 封装自定义对象作为参数，然后将其返回，发送POST请求，可以拿到数据
+```java
+@RestController
+public class ParameterTestController {
+    /**
+     * 数据绑定：页面提交的请求数据(GET/POST)都可以和对象属性进行绑定
+     */
+    @PostMapping("/saveuser")
+    public Person saveuser(Person person) {
+        return person;
+    }
+}
+```
+2） HTML
 
->
+```html
+测试原生API：<hr/>
+    测试封装POJO：
+    <form action="/saveuser" method="post">
+        姓名：<input name="userName" value="zhangsan"/> <br/>
+        年龄：<input name="age" value="18"/> <br/>
+        生日：<input name="brith" value="2019/12/10"/> <br/>
+        宠物姓名：<input name="pet.name" value="阿猫"/> <br/>
+        宠物年龄：<input name="pet.age" value="5"/> <br/>
+        <input type="submit" value="保存">
+    </form>
+```
+3) 结果 : {"userName":"zhangsan","age":18,"birth":null,"pet":{"name":"阿猫","age":"5"}}
+
+**原码分析：**
+
+-> DispatcherServlet.java 
+    -> doDispatch() 
+        -> mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
+            -> this.handleInternal(request, response, (HandlerMethod)handler);
+                -> mav = this.invokeHandlerMethod(request, response, handlerMethod);
+                    -> invocableMethod.invokeAndHandle(webRequest, mavContainer, new Object[0]);
+                        -> Object returnValue = this.invokeForRequest(webRequest, mavContainer, providedArgs);
+                            -> Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs); (InvocableHandlerMethod.java)
+                                -> !this.resolvers.supportsParameter(parameter)
+                                    -> getArgumentResolver(parameter)
+```java
+public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgumentResolver {
+    @Nullable
+    private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parameter) {
+        HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
+        if (result == null) {
+            for (HandlerMethodArgumentResolver resolver : this.argumentResolvers) {
+                // 自定义类型参数适配的解析器是：ServletModelAttributeMethodProcessor@6867
+                if (resolver.supportsParameter(parameter)) {// 匹配相应的参数解析器
+                    result = resolver;
+                    this.argumentResolverCache.put(parameter, result);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+}
+```
+-
+                            -> args[i] = this.resolvers.resolveArgument(parameter, mavContainer, request, this.dataBinderFactory);  (InvocableHandlerMethod.java.java)
+                                -> resolver.resolveArgument(parameter, mavContainer, webRequest, binderFactory); (HandlerMethodArgumentResolverComposite.java)
+                                -> attribute = createAttribute(name, parameter, binderFactory, webRequest); (ModelAttributeMethodProcessor.java)
+                                    // Create attribute instance
+                                    -> return super.createAttribute(attributeName, parameter, binderFactory, request);(利用反射，获取请求方法的属性  Person(userName=null, age=null, birth=null, pet=null))
+                                -> WebDataBinder binder = binderFactory.createBinder(webRequest, attribute, name); (ModelAttributeMethodProcessor.java)
+                                    // target = Person(userName=null, age=null, birth=null, pet=null)
+                                    // objectName = "Person"        webRequest = 当前请求
+                                    -> WebDataBinder dataBinder = createBinderInstance(target, objectName, webRequest); (DefaultDataBinderFactory.java)
+                                    -> initBinder(dataBinder, webRequest);
+                                // binder 中的属性都是空的，Person(userName=null, age=null, birth=null, pet=null)...
+                                -> bindRequestParameters(binder, webRequest);
+                                    -> servletBinder.bind(servletRequest);
+                                        // mpvs:PropertyValues: length=5; bean property 'age'; bean property 'brith'; bean property 'pet.age'; bean property 'pet.name'; bean property 'userName'
+                                        -> addBindValues(mpvs, request);
+                                        // PropertyValues: length=5; bean property 'age'; bean property 'brith'; bean property 'pet.age'; bean property 'pet.name'; bean property 'userName'
+                                        // list类型
+                                        -> addbind(mpvs)
+                                        -> doBind(mpvs);
+                                            // this.getPropertyAccessor()中处理了参数值类型转换
+                                            -> this.getPropertyAccessor().setPropertyValues(mpvs, this.isIgnoreUnknownFields(), this.isIgnoreInvalidFields());
+                                                -> this.getInternalBindingResult().getPropertyAccessor(); (this.getPropertyAccessor())
+                                                    -> this.getInternalBindingResult().getPropertyAccessor(); (getPropertyAccessor())
+                                                    -> result.initConversion(this.conversionService); (createBeanPropertyBindingResult())
+                                                        -> this.getPropertyAccessor().setConversionService(conversionService);
+                                                            // 拿到容器中124个值类型转换器 converters
+                                                            -> setConversionService(@Nullable ConversionService conversionService) {this.conversionService = conversionService;}
+                                                // pv 是请求参数的一个属性   如  name = "age"  value = "18"    此时还未转换值类型
+                                                -> this.setPropertyValue(pv);
+                                                    // token = 
+                                                    -> nestedPa.setPropertyValue(tokens, pv);
+                                                        -> this.processLocalProperty(tokens, pv);
+                                                            ** // 将请求参数的参数值类型转换成目标对象的参数值类型 **
+                                                            -> valueToApply = this.convertForProperty(tokens.canonicalName, oldValue, originalValue, ph.toTypeDescriptor());
+                                                                -> this.convertIfNecessary(propertyName, oldValue, newValue, td.getType(), td);
+                                                                    // typeConverterDelegate = 124 个参数值类型转换器
+                                                                    -> this.typeConverterDelegate.convertIfNecessary(propertyName, oldValue, newValue, requiredType, td);
+                                                                        -> conversionService.convert(newValue, sourceTypeDesc, typeDescriptor);
+                                                                            -> GenericConverter converter = this.getConverter(sourceType, targetType); //选取合适的参数值类型转换器
+                                                                                -> 1） 从缓存里面获取，2） 从容器中遍历获取
+                                                                                -> 2) converter = this.converters.find(sourceType, targetType);
+                                                            -> 返回的 valueToApply 是转换后的参数值类型  "18" -> 18
 
 
-### 2.4. 视图解析与模板引擎
->
+**参数值类型转换核心方法：**
 
->
+```java
+class TypeConverterDelegate {
+    @Nullable
+    public <T> T convertIfNecessary(@Nullable String propertyName, @Nullable Object oldValue, @Nullable Object newValue, @Nullable Class<T> requiredType, @Nullable TypeDescriptor typeDescriptor) throws IllegalArgumentException {
+        PropertyEditor editor = this.propertyEditorRegistry.findCustomEditor(requiredType, propertyName);
+        ConversionFailedException conversionAttemptEx = null;
+        ConversionService conversionService = this.propertyEditorRegistry.getConversionService();
+        if (editor == null && conversionService != null && newValue != null && typeDescriptor != null) {
+            TypeDescriptor sourceTypeDesc = TypeDescriptor.forObject(newValue);
+            if (conversionService.canConvert(sourceTypeDesc, typeDescriptor)) {// 判断这些适配器中，是由可以有转换 String -> Integer 类型的转换器
+                try {
+                    return conversionService.convert(newValue, sourceTypeDesc, typeDescriptor);
+                } catch (ConversionFailedException var14) {
+                    conversionAttemptEx = var14;
+                }
+            }
+        }
 
+        Object convertedValue = newValue;
+        if (editor != null || requiredType != null && !ClassUtils.isAssignableValue(requiredType, newValue)) {
+            if (typeDescriptor != null && requiredType != null && Collection.class.isAssignableFrom(requiredType) && newValue instanceof String) {
+                TypeDescriptor elementTypeDesc = typeDescriptor.getElementTypeDescriptor();
+                if (elementTypeDesc != null) {
+                    Class<?> elementType = elementTypeDesc.getType();
+                    if (Class.class == elementType || Enum.class.isAssignableFrom(elementType)) {
+                        convertedValue = StringUtils.commaDelimitedListToStringArray((String)newValue);
+                    }
+                }
+            }
 
-### 2.5. 拦截器
->
+            if (editor == null) {
+                editor = this.findDefaultEditor(requiredType);
+            }
 
->
+            convertedValue = this.doConvertValue(oldValue, convertedValue, requiredType, editor);
+        }
 
+        boolean standardConversion = false;
+        if (requiredType != null) {
+            if (convertedValue != null) {
+                if (Object.class == requiredType) {
+                    return convertedValue;
+                }
 
-### 2.6. 跨域
->
+                if (requiredType.isArray()) {
+                    if (convertedValue instanceof String && Enum.class.isAssignableFrom(requiredType.getComponentType())) {
+                        convertedValue = StringUtils.commaDelimitedListToStringArray((String)convertedValue);
+                    }
 
->
+                    return this.convertToTypedArray(convertedValue, propertyName, requiredType.getComponentType());
+                }
 
+                if (convertedValue instanceof Collection) {
+                    convertedValue = this.convertToTypedCollection((Collection)convertedValue, propertyName, requiredType, typeDescriptor);
+                    standardConversion = true;
+                } else if (convertedValue instanceof Map) {
+                    convertedValue = this.convertToTypedMap((Map)convertedValue, propertyName, requiredType, typeDescriptor);
+                    standardConversion = true;
+                }
 
-### 2.7. 异常处理
->
+                if (convertedValue.getClass().isArray() && Array.getLength(convertedValue) == 1) {
+                    convertedValue = Array.get(convertedValue, 0);
+                    standardConversion = true;
+                }
 
->
+                if (String.class == requiredType && ClassUtils.isPrimitiveOrWrapper(convertedValue.getClass())) {
+                    return convertedValue.toString();
+                }
 
+                if (convertedValue instanceof String && !requiredType.isInstance(convertedValue)) {
+                    if (conversionAttemptEx == null && !requiredType.isInterface() && !requiredType.isEnum()) {
+                        try {
+                            Constructor<T> strCtor = requiredType.getConstructor(String.class);
+                            return BeanUtils.instantiateClass(strCtor, new Object[]{convertedValue});
+                        } catch (NoSuchMethodException var12) {
+                            if (logger.isTraceEnabled()) {
+                                logger.trace("No String constructor found on type [" + requiredType.getName() + "]", var12);
+                            }
+                        } catch (Exception var13) {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("Construction via String failed for type [" + requiredType.getName() + "]", var13);
+                            }
+                        }
+                    }
 
-### 2.8. 原生servlet组件（原生组件注入）
->
+                    String trimmedValue = ((String)convertedValue).trim();
+                    if (requiredType.isEnum() && trimmedValue.isEmpty()) {
+                        return null;
+                    }
 
->
+                    convertedValue = this.attemptToConvertStringToEnum(requiredType, trimmedValue, convertedValue);
+                    standardConversion = true;
+                } else if (convertedValue instanceof Number && Number.class.isAssignableFrom(requiredType)) {
+                    convertedValue = NumberUtils.convertNumberToTargetClass((Number)convertedValue, requiredType);
+                    standardConversion = true;
+                }
+            } else if (requiredType == Optional.class) {
+                convertedValue = Optional.empty();
+            }
 
+            if (!ClassUtils.isAssignableValue(requiredType, convertedValue)) {
+                if (conversionAttemptEx != null) {
+                    throw conversionAttemptEx;
+                }
 
-### 2.9. 嵌入式Web容器
->
+                if (conversionService != null && typeDescriptor != null) {
+                    TypeDescriptor sourceTypeDesc = TypeDescriptor.forObject(newValue);
+                    if (conversionService.canConvert(sourceTypeDesc, typeDescriptor)) {
+                        return conversionService.convert(newValue, sourceTypeDesc, typeDescriptor);
+                    }
+                }
 
->
+                StringBuilder msg = new StringBuilder();
+                msg.append("Cannot convert value of type '").append(ClassUtils.getDescriptiveType(newValue));
+                msg.append("' to required type '").append(ClassUtils.getQualifiedName(requiredType)).append("'");
+                if (propertyName != null) {
+                    msg.append(" for property '").append(propertyName).append("'");
+                }
 
+                if (editor != null) {
+                    msg.append(": PropertyEditor [").append(editor.getClass().getName()).append("] returned inappropriate value of type '").append(ClassUtils.getDescriptiveType(convertedValue)).append("'");
+                    throw new IllegalArgumentException(msg.toString());
+                }
 
-### 2.10. 定制化原理
->
+                msg.append(": no matching editors or conversion strategy found");
+                throw new IllegalStateException(msg.toString());
+            }
+        }
 
->
+        if (conversionAttemptEx != null) {
+            if (editor == null && !standardConversion && requiredType != null && Object.class != requiredType) {
+                throw conversionAttemptEx;
+            }
 
+            logger.debug("Original ConversionService attempt failed - ignored since PropertyEditor based conversion eventually succeeded", conversionAttemptEx);
+        }
 
+        return convertedValue;
+    }
+}
+```
 
+```java
+public class GenericConversionService implements ConfigurableConversionService {
+    @Nullable
+    protected GenericConverter getConverter(TypeDescriptor sourceType, TypeDescriptor targetType) {
+        GenericConversionService.ConverterCacheKey key = new GenericConversionService.ConverterCacheKey(sourceType, targetType);
+        GenericConverter converter = (GenericConverter)this.converterCache.get(key); 
+        if (converter != null) {// 判断缓存里面有没有需要的值类型转换器
+            return converter != NO_MATCH ? converter : null;
+        } else {// 如果缓存中没有值类型转换器，就开始从容器中获取
+            converter = this.converters.find(sourceType, targetType);
+            if (converter == null) {// 如果容器中也没有需要的值类型转换器，就会获取我们自己定义的转换器
+                converter = this.getDefaultConverter(sourceType, targetType);
+            }
 
-## 3. 数据访问
+            if (converter != null) {
+                this.converterCache.put(key, converter);
+                return converter;
+            } else {
+                this.converterCache.put(key, NO_MATCH);
+                return null;
+            }
+        }
+    }
+    
+    @Nullable
+    public GenericConverter find(TypeDescriptor sourceType, TypeDescriptor targetType) {
+        List<Class<?>> sourceCandidates = this.getClassHierarchy(sourceType.getType()); //the type of request agrument/source
+        List<Class<?>> targetCandidates = this.getClassHierarchy(targetType.getType()); //the type of target
+        Iterator var5 = sourceCandidates.iterator();
 
+        while(var5.hasNext()) {
+            Class<?> sourceCandidate = (Class)var5.next();
+            Iterator var7 = targetCandidates.iterator();
 
-## 4. 单元测试
+            while(var7.hasNext()) {
+                Class<?> targetCandidate = (Class)var7.next();
+                ConvertiblePair convertiblePair = new ConvertiblePair(sourceCandidate, targetCandidate);
+                GenericConverter converter = this.getRegisteredConverter(sourceType, targetType, convertiblePair);
+                if (converter != null) {
+                    return converter;// 将转换器返回
+                }
+            }
+        }
 
+        return null;
+    }
+}
+```
 
-## 5. 指标监控
+**自定义参数值类型解析器**
+- 定制SpringMVC容器配置，就是给容器中放一个 WebMvcConfigurer
+```java
+@Configuration(proxyBeanMethods = false)
+public class WebConfig /*implements WebMvcConfigurer*/ {
+    @Bean
+    public WebMvcConfigurer webMvcConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void configurePathMatch(PathMatchConfigurer configurer) {
+                UrlPathHelper urlPathHelper = new UrlPathHelper();
+                urlPathHelper.setRemoveSemicolonContent(false);
+                configurer.setUrlPathHelper(urlPathHelper);
+            }
 
+            @Override
+            public void addFormatters(FormatterRegistry registry) {
+                registry.addConverter(new Converter<String, Pet>() {
 
-## 6. 原理解析
+                    @Override
+                    public Pet convert(String source) {
+                        Pet pet = new Pet();
+                        String[] split = source.split(",");
+                        pet.setName(split[0].trim());
+                        pet.setAge(split[1].trim());
+                        return pet;
+                    }
+                });
+            }
+        };
+    }
+}
+```
+```html
+测试原生API：<hr/>
+    测试封装POJO：
+    <form action="/saveuser" method="post">
+        姓名：<input name="userName" value="zhangsan"/> <br/>
+        年龄：<input name="age" value="18"/> <br/>
+        生日：<input name="birth" value="2019/12/10"/> <br/>
+        <!--宠物姓名：<input name="pet.name" value="阿猫"/> <br/>
+        宠物年龄：<input name="pet.age" value="5"/> <br/>-->
+        宠物：<input name="pet" value="阿猫, 5"/>  <!--SpringBoot原生不支持解析该方式，需要自己定制配置去解析-->
+        <input type="submit" value="保存"/>
+    </form>
+```
 
-
-
-
+![image-自定义参数值类型转换器](../image/自定义参数值类型转换器.png)

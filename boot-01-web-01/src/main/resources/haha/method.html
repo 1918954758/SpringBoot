@@ -59,5 +59,18 @@
         <li>若是一个矩阵变量有多个值，应当使用英文符号‘,’进行分割，或之命名多个重复的key即可</li>
         <li>如，/car/sell;low=34;brand=byd,audi,yd</li>
     </ol>
+    <hr/>
+
+    测试原生API：<hr/>
+    测试封装POJO：
+    <form action="/saveuser" method="post">
+        姓名：<input name="userName" value="zhangsan"/> <br/>
+        年龄：<input name="age" value="18"/> <br/>
+        生日：<input name="birth" value="2019/12/10"/> <br/>
+        <!--宠物姓名：<input name="pet.name" value="阿猫"/> <br/>
+        宠物年龄：<input name="pet.age" value="5"/> <br/>-->
+        宠物：<input name="pet" value="阿猫, 5"/>
+        <input type="submit" value="保存"/>
+    </form>
 </body>
 </html>
