@@ -1,3 +1,63 @@
+# SpringBoot2核心技术-核心功能
+## 1. 数据响应
+
+-----
+> 响应页面
+
+> 数据响应：JSON  XML  xls  图片、音视频..  自定义协议数据
+
+-----
+- 响应JSON
+
+1) 需要在pom.xml中引入 *-start-web 场景
+```xml
+<dependencys>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!-- web 场景自动引入了json场景 (有的没有自动引入，需要手动引入) -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-json</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jdk8</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
+    </dependency>
+</dependencys>
+```
+**测试响应json**
+- @Controller
+- @ResponseBody
+- @xxxMapping("/.../...")
+```java
+@Controller
+public class ResponseTestController {
+    @ResponseBody
+    @GetMapping("/test/person")
+    public Person getPerson() {
+        Person person = new Person();
+        person.setAge(28);
+        person.setBirth(new Date());
+        person.setUserName("zhangsan");
+        return person;
+    }
+}
+```
+- 结果：{"userName":"zhangsan","age":28,"birth":"2021-05-08T08:53:34.106+00:00","pet":null}
+
+## 2. 内容协商
+
+
 ### 2.3. 数据响应与内容协商
 >
 
