@@ -379,6 +379,7 @@ public class WebConfig /*implements WebMvcConfigurer*/ {
 
 - 有可能我们添加的自定义功能，会覆盖很多功能，导致功能失效，此时只能debug查看原码，却什么填什么
 
+[视图解析器Thymeleaf](https://www.bilibili.com/video/BV19K4y1L7MT?p=43&spm_id_from=pageDriver)
 
 ### 2.5. 视图解析与模板引擎
 >
