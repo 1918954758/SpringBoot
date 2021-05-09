@@ -12,17 +12,17 @@ import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.accept.ContentNegotiationStrategy;
+import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 import org.springframework.web.accept.ParameterContentNegotiationStrategy;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.util.UrlPathHelper;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @name: Filter
@@ -88,6 +88,25 @@ public class WebConfig /*implements WebMvcConfigurer*/ {
             public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
                 converters.add(new ZiChenMessageConverter());
             }
+
+            /**
+             * 配置内容协商功能（基于参数的内容协商）
+             * @param configurer
+             */
+            @Override
+            public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+                //Map<String, MediaType> mediaTypes
+                Map<String, MediaType> mediaTypes = new HashMap<>();
+                mediaTypes.put("josn", MediaType.APPLICATION_JSON);
+                mediaTypes.put("xml", MediaType.APPLICATION_XML);
+                mediaTypes.put("x-zichen", MediaType.parseMediaType("application/x-zichen"));
+                // 指定支持解析哪些参数对应的哪些媒体类型
+                ParameterContentNegotiationStrategy parameterStrategy = new ParameterContentNegotiationStrategy(mediaTypes);
+                // 修改参数名
+                //parameterStrategy.setParameterName("format");
+                HeaderContentNegotiationStrategy headerStrategy = new HeaderContentNegotiationStrategy();
+                configurer.strategies(Arrays.asList(parameterStrategy, headerStrategy));
+            }
         };
     }
 
@@ -99,13 +118,4 @@ public class WebConfig /*implements WebMvcConfigurer*/ {
         configurer.setUrlPathHelper(urlPathHelper);
     }*/
 
-    /*@Bean
-    public void updateFormat2Other() {
-        log.info("updateFormat2Other 进来了。。。。");
-        MediaType mediaType = new MediaType("*", "*");
-        Map<String, MediaType> map = new HashMap<>();
-        map.put("formatter", mediaType);
-        new ParameterContentNegotiationStrategy(map);
-        log.info("updateFormat2Other 出去了。。。。");
-    }*/
 }
