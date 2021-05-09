@@ -14,3 +14,6 @@ spring:
     hiddenmethod:
       filter:
         enabled: true
+    # 开启基于请求参数的内容协商，请求参数携带参数format 开决定返回什么数据
+    contentnegotiation:
+      favor-parameter: true

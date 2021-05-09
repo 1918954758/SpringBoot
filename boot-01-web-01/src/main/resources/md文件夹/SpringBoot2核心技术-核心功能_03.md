@@ -190,45 +190,152 @@ class a{
     }
 }
 ```
+### 2.4. 开启浏览器参数方式的内容协商功能
+> 为了方便内容协商，开启基于请求参数的内容协商功能
 
+- 只需要在配置文件配置上以下内容
+```yaml
+spring:
+  mvc:
+    contentnegotiation:
+      favor-parameter: true
+```
+- 然后访问的时候，携带参数 localhost:8080/.../...?format=json
 
-### 2.4. 视图解析与模板引擎
+**原理**
+- 在获取浏览器可以接收的数据类型之后，
+- 如果不开启基于参数的内容协商，默认会以基于请求头的方式协商
+    - HeaderContentNegotiationStrategy@7173
+- 如果不开启基于参数的内容协商，除了默认会以基于请求头的方式协商之外，还会增加一个基于参数方式的协商
+    - ParameterContentNegotiationStrategy@7172
+
+![image-开启基于参数方式的内容协商](../image/开启基于参数方式的内容协商.png)
+
+> 自定义MessageConverter
+
+- 实现多个协议数据兼容。 json、xml、x-zichen
+  - 1. @ResponseBody 响应数据出去，调用RequestResponseBodyMethodProcessor处理
+  - 2. Processor 处理方法返回值。通过MessageConverter处理
+  - 3. 所有MessageConverter合起来可以支持各种媒体类型数据的操作（读、写）
+  - 4. 内容协商找到最终的 MessageConverter
+
+- 根据不同的请求，响应不同的数据类型(以请求头的方式)
+  *描述*
+    - 1. 浏览器发请求直接返回xml   [application/xml]   jacksonXmlConverter
+    - 2. ajax发请求直接返回json   [application/json]   jacksonJsonConverter
+    - 3. 自定义请求，返回自定义协议的数据   [application/x-zichen]   xxxxConverter
+  *实现步骤*
+    - 1. 添加自定义的MessageConverter 进系统底层
+    - 2. 系统底层就会统计出所有有MessageConverter能操作哪些类型
+    - 3. 客户端内容协商 [zichen ---> zichen]
+
+- 系统默认的Converter在 WebMvcAutoConfiguration.java中
+- 实现自定义MessageConverter
+```java
+/**
+ * @name: ZichenMessageConverter
+ * @description: 自定义消息转换器
+ * @author: zichen
+ * @date: 2021/5/9  14:07
+ */
+public class ZiChenMessageConverter implements HttpMessageConverter<Person> {
+
+    @Override
+    public boolean canRead(Class<?> clazz, MediaType mediaType) {
+        return false;
+    }
+
+    @Override
+    public boolean canWrite(Class<?> clazz, MediaType mediaType) {
+        return clazz.isAssignableFrom(Person.class);
+    }
+
+    @Override
+    public List<MediaType> getSupportedMediaTypes() {
+        return MediaType.parseMediaTypes("application/x-zichen");
+    }
+
+    @Override
+    public Person read(Class<? extends Person> clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+        return null;
+    }
+
+    @Override
+    public void write(Person person, MediaType contentType, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+        String data = person.getUserName() + " ; " + person.getAge() + " ; " + person.getBirth() + " ; " + person.getPet();
+        OutputStream body = outputMessage.getBody();
+        body.write(data.getBytes(StandardCharsets.UTF_8));
+    }
+}
+```
+- 将自定义MessageConverter添加到容器中
+```java
+@Configuration(proxyBeanMethods = false)
+@Slf4j
+public class WebConfig /*implements WebMvcConfigurer*/ {
+  @Bean
+  public WebMvcConfigurer webMvcConfigurer() {
+    return new WebMvcConfigurer() {
+      // 覆盖默认的MessageConverter
+            /*@Override
+            public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+
+            }*/
+
+      // 扩展MessageConverter
+      @Override
+      public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(new ZiChenMessageConverter());
+      }
+    };
+  }
+}
+```
+
+### 2.5. 视图解析与模板引擎
 >
 
 >
 
 
-### 2.5. 拦截器
+### 2.6. 模板引擎
 >
 
 >
 
 
-### 2.6. 跨域
+
+### 2.7. 拦截器
 >
 
 >
 
 
-### 2.7. 异常处理
+### 2.8. 跨域
 >
 
 >
 
 
-### 2.8. 原生servlet组件（原生组件注入）
+### 2.9. 异常处理
 >
 
 >
 
 
-### 2.9. 嵌入式Web容器
+### 2.10. 原生servlet组件（原生组件注入）
 >
 
 >
 
 
-### 2.10. 定制化原理
+### 2.11. 嵌入式Web容器
+>
+
+>
+
+
+### 2.12. 定制化原理
 >
 
 >
