@@ -302,6 +302,84 @@ public class WebConfig /*implements WebMvcConfigurer*/ {
 
 ![image-基于请求头内容协商测试-03-application_x-zichen](../image/基于请求头内容协商测试-03-application_x-zichen.png)
 
+- 基于参数的内容协商
+```java
+@Configuration(proxyBeanMethods = false)
+@Slf4j
+public class WebConfig /*implements WebMvcConfigurer*/ {
+  // 1. 自己写一个@Bean  // WebMvcConfigurer  容器定制配置
+  // 2. 实现WebMvcConfigurer
+  @Bean
+  public WebMvcConfigurer webMvcConfigurer() {
+    return new WebMvcConfigurer() {
+      /**
+       * 配置内容协商功能（基于参数的内容协商）
+       * @param configurer
+       */
+      @Override
+      public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+        //Map<String, MediaType> mediaTypes
+        Map<String, MediaType> mediaTypes = new HashMap<>();
+        mediaTypes.put("josn", MediaType.APPLICATION_JSON);
+        mediaTypes.put("xml", MediaType.APPLICATION_XML);
+        mediaTypes.put("x-zichen", MediaType.parseMediaType("application/x-zichen"));
+        // 指定支持解析哪些参数对应的哪些媒体类型
+        ParameterContentNegotiationStrategy parameterStrategy = new ParameterContentNegotiationStrategy(mediaTypes);
+        configurer.strategies(Arrays.asList(parameterStrategy));
+      }
+    };
+  }
+}
+```
+- 基于参数内容协商测试-01-application/json
+
+![image-基于参数内容协商测试-01-application_json](../image/基于参数内容协商测试-01-application_json.png)
+- 基于参数内容协商测试-02-application/xml
+
+![image-基于参数内容协商测试-02-application_xml](../image/基于参数内容协商测试-02-application_xml.png)
+- 基于参数内容协商测试-03-application/x-zichen
+
+![image-基于参数内容协商测试-03-application_x-zichen](../image/基于参数内容协商测试-03-application_x-zichen.png)
+ 
+
+- 问题：同时都配置了，基于请求头和基于参数的内容协商，底层会覆盖请求头的协商，返回参数协商的
+- 这是由于我们自定义的时候，只放了基于参数的
+- 在放一个基于请求头的就可以了
+```java
+@Configuration(proxyBeanMethods = false)
+@Slf4j
+public class WebConfig /*implements WebMvcConfigurer*/ {
+  // 1. 自己写一个@Bean  // WebMvcConfigurer  容器定制配置
+  // 2. 实现WebMvcConfigurer
+  @Bean
+  public WebMvcConfigurer webMvcConfigurer() {
+    return new WebMvcConfigurer() {
+      /**
+       * 配置内容协商功能（基于参数的内容协商）
+       * @param configurer
+       */
+      @Override
+      public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+        //Map<String, MediaType> mediaTypes
+        Map<String, MediaType> mediaTypes = new HashMap<>();
+        mediaTypes.put("josn", MediaType.APPLICATION_JSON);
+        mediaTypes.put("xml", MediaType.APPLICATION_XML);
+        mediaTypes.put("x-zichen", MediaType.parseMediaType("application/x-zichen"));
+        // 指定支持解析哪些参数对应的哪些媒体类型
+        ParameterContentNegotiationStrategy parameterStrategy = new ParameterContentNegotiationStrategy(mediaTypes);
+        // 修改参数名
+        // parameterStrategy.setParameterName("format");
+        HeaderContentNegotiationStrategy headerStrategy = new HeaderContentNegotiationStrategy();
+        configurer.strategies(Arrays.asList(parameterStrategy, headerStrategy));
+      }
+    };
+  }
+}
+```
+
+- 有可能我们添加的自定义功能，会覆盖很多功能，导致功能失效，此时只能debug查看原码，却什么填什么
+
+
 ### 2.5. 视图解析与模板引擎
 >
 
