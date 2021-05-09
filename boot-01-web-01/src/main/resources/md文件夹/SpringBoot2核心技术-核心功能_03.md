@@ -292,6 +292,16 @@ public class WebConfig /*implements WebMvcConfigurer*/ {
 }
 ```
 
+- 基于请求头内容协商测试-01-application/json
+
+![image-基于请求头内容协商测试-01-application_json](../image/基于请求头内容协商测试-01-application_json.png)
+- 基于请求头内容协商测试-02-application/xml
+
+![image-基于请求头内容协商测试-02-application_xml](../image/基于请求头内容协商测试-02-application_xml.png)
+- 基于请求头内容协商测试-03-application/x-zichen
+
+![image-基于请求头内容协商测试-03-application_x-zichen](../image/基于请求头内容协商测试-03-application_x-zichen.png)
+
 ### 2.5. 视图解析与模板引擎
 >
 
