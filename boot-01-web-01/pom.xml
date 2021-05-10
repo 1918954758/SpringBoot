@@ -69,6 +69,13 @@
         </dependency>
         <!-- SpringBoot响应页面支持xml场景 end-->
 
+        <!-- Starter for building MVC web applications using Thymeleaf views 【start】 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <!-- Starter for building MVC web applications using Thymeleaf views 【end】 -->
+
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>jquery</artifactId>

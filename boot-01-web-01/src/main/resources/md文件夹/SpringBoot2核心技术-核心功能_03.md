@@ -382,6 +382,63 @@ public class WebConfig /*implements WebMvcConfigurer*/ {
 [视图解析器Thymeleaf](https://www.bilibili.com/video/BV19K4y1L7MT?p=43&spm_id_from=pageDriver)
 
 ### 2.5. 视图解析与模板引擎
+
+- 视图解析：1） 转发；2）重定向；3）自定义视图
+  
+- SpringBoot默认是不支持JSP的，需要引入第三方的模板引擎
+  
+- 使用Thymeleaf
+- Thymeleaf 语法见官网
+
+[Thymeleaf](https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#standard-expression-syntax)
+
+- 引入Template Engine
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+```
+- 引入依赖之后，可以查看 ThymeleafAutoConfiguration.java -> ThymeleafProperties.java
+```java
+//制定HTML位置，和文件后缀
+public static final String DEFAULT_PREFIX = "classpath:/templates/";
+public static final String DEFAULT_SUFFIX = ".html";
+```
+- Controller
+```java
+@Controller
+public class ViewTestController {
+
+    @GetMapping("/goto/home")
+    public String gotoHome(Map<String, Object> map, Model model) {
+        model.addAttribute("age", 18);
+        map.put("name", "zichen");
+        return "home";
+    }
+}
+```
+- 编写HTML
+```html
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta content="charset=UTF-8" />
+    <title>Thymeleaf</title>
+</head>
+<body>
+    <!-- 从域中获取属性的值，使用$ -->
+    <p th:text="${name}">Thymeleaf zc</p>
+    <p th:text="${age}">Thymeleaf zc</p>
+    <!-- 国际化之类的采用 #  -->
+</body>
+</html>
+```
+访问：http://localhost:8080/goto/home
+
+
 >
 
 >
