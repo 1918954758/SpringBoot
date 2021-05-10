@@ -414,6 +414,7 @@ public class ViewTestController {
     public String gotoHome(Map<String, Object> map, Model model) {
         model.addAttribute("age", 18);
         map.put("name", "zichen");
+        map.put("baidu", "http://www.baidu.com");
         return "home";
     }
 }
@@ -432,6 +433,7 @@ public class ViewTestController {
     <!-- 从域中获取属性的值，使用$ -->
     <p th:text="${name}">Thymeleaf zc</p>
     <p th:text="${age}">Thymeleaf zc</p>
+    <a href="www.baidu.com" th:href="${baidu}">www.baidu.com</a>
     <!-- 国际化之类的采用 #  -->
 </body>
 </html>
