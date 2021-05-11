@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -23,7 +23,7 @@
 
 <div class="container">
 
-    <form class="form-signin" action="index.html">
+    <form class="form-signin" action="index.html" method="post" th:action="@{index}">
         <div class="form-signin-heading text-center">
             <h1 class="sign-title">Sign In</h1>
             <img src="images/login-logo.png" alt=""/>
