@@ -29,8 +29,9 @@
             <img src="images/login-logo.png" alt=""/>
         </div>
         <div class="login-wrap">
-            <input type="text" class="form-control" placeholder="User ID" autofocus>
-            <input type="password" class="form-control" placeholder="Password">
+            <label style="color:red" th:text="${msg}">登录</label>
+            <input type="userName" name="userName" class="form-control" placeholder="UserName" autofocus>
+            <input type="passWord" name="passWord" class="form-control" placeholder="Password">
 
             <button class="btn btn-lg btn-login btn-block" type="submit">
                 <i class="fa fa-check"></i>

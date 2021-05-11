@@ -24,8 +24,8 @@ public class Validate {
             if (validate4User(model, userName)) {
                 if (Utils.isNoEmpty4Str(passWord)) {
                     if (validate4PassWord(model, passWord)) {
-                        session.setAttribute("userName", userName);
-                        session.setAttribute("passWord", passWord);
+                        session.setAttribute("loginUser", user);
+                        //session.setAttribute("passWord", passWord);
                         return true;
                     } else {
                         return false;
