@@ -19,10 +19,11 @@ public class HelloController {
         return "aaa";
     }
 
-    @RequestMapping("/")
+    @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index() {
-        return "index.html";
+        return "../haha/index";
     }
+
 
     @ResponseBody
     //@RequestMapping(value = "/user", method = RequestMethod.GET)
