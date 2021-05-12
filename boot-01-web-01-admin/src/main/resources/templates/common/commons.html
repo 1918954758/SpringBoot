@@ -51,7 +51,7 @@
 
                 <!--sidebar nav start-->
                 <ul class="nav nav-pills nav-stacked custom-nav">
-                    <li><a href="../index.html"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
+                    <li><a href="../index.html" th:href="@{/main.html}"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
                     <li class="menu-list"><a href=""><i class="fa fa-laptop"></i> <span>Layouts</span></a>
                         <ul class="sub-menu-list">
                             <li ><a href="../blank_page.html"> Blank Page</a></li>
@@ -114,10 +114,10 @@
                     </li>
                     <li class="menu-list nav-active"><a href="#"><i class="fa fa-th-list"></i> <span>Data Tables</span></a>
                         <ul class="sub-menu-list">
-                            <li class="active"><a href="basic_table.html"> Basic Table</a></li>
-                            <li><a href="dynamic_table.html"> Advanced Table</a></li>
-                            <li><a href="responsive_table.html"> Responsive Table</a></li>
-                            <li><a href="editable_table.html"> Edit Table</a></li>
+                            <li><a href="basic_table.html" th:href="@{/basic_table}"> Basic Table</a></li>
+                            <li><a href="dynamic_table.html" th:href="@{/dynamic_table}"> Advanced Table</a></li>
+                            <li><a href="responsive_table.html" th:href="@{/responsive_table}"> Responsive Table</a></li>
+                            <li><a href="editable_table.html" th:href="@{/editable_table}"> Edit Table</a></li>
                         </ul>
                     </li>
 
@@ -272,7 +272,7 @@
                                     <a href="">
                                         <span class="thumb"><img src="images/photos/user3.png" alt="" /></span>
                                         <span class="desc">
-                                          <span class="name">Jane Doe</span>
+                                          <span class="name">John Doe</span>
                                           <span class="msg">Lorem ipsum dolor sit amet...</span>
                                         </span>
                                     </a>
@@ -342,13 +342,13 @@
                     <li>
                         <a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                             <img src="images/photos/user-avatar.png" alt="" />
-                            John Doe
+                            [[${session.loginUser.userName}]]
                             <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-usermenu pull-right">
                             <li><a href="#"><i class="fa fa-user"></i>  Profile</a></li>
                             <li><a href="#"><i class="fa fa-cog"></i>  Settings</a></li>
-                            <li><a href="#"><i class="fa fa-sign-out"></i> Log Out</a></li>
+                            <li><a href="#" th:href="@{/login}"><i class="fa fa-sign-out"></i> Log Out</a></li>
                         </ul>
                     </li>
 
@@ -362,16 +362,16 @@
 
     <div th:fragment="commonScript">
         <!-- Placed js at the end of the document so the pages load faster -->
-        <script src="js/jquery-1.10.2.min.js"></script>
-        <script src="js/jquery-ui-1.9.2.custom.min.js"></script>
-        <script src="js/jquery-migrate-1.2.1.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/modernizr.min.js"></script>
-        <script src="js/jquery.nicescroll.js"></script>
+        <script src="js/jquery-1.10.2.min.js" th:src="@{/js/jquery-1.10.2.min.js}"></script>
+        <script src="js/jquery-ui-1.9.2.custom.min.js" th:src="@{/js/jquery-ui-1.9.2.custom.min.js}"></script>
+        <script src="js/jquery-migrate-1.2.1.min.js" th:src="@{/js/jquery-migrate-1.2.1.min.js}"></script>
+        <script src="js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+        <script src="js/modernizr.min.js" th:src="@{/js/modernizr.min.js}"></script>
+        <script src="js/jquery.nicescroll.js" th:src="@{/js/jquery.nicescroll.js}"></script>
     </div>
     <div th:fragment="commonScript4AllPages">
         <!--common scripts for all pages-->
-        <script src="js/scripts.js"></script>
+        <script src="js/scripts.js" th:src="@{/js/scripts.js}"></script>
     </div>
 </body>
 </html>
