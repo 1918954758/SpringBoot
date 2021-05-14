@@ -447,6 +447,9 @@ public class ViewTestController {
 
 
 ### 2.6. 模板引擎
+
+- 见 boot-01-web-01-admin/resources/后台管理模板.md
+
 >
 
 >
@@ -454,6 +457,9 @@ public class ViewTestController {
 
 
 ### 2.7. 拦截器
+
+- 见 boot-01-web-01-admin/resources/拦截器.md
+
 >
 
 >
