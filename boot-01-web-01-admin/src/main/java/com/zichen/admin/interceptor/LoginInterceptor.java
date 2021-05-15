@@ -1,8 +1,13 @@
-## 拦截器
+package com.zichen.admin.interceptor;
 
-### 1. 编写一个拦截器，实现HanderInterceptor接口
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
 
-```java
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 /**
  * @name: LoginInterceptor
  * @description:
@@ -25,6 +30,8 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         String requestURI = request.getRequestURI();
         log.info("拦截器的请求路径是{}", requestURI);
+
+        log.info("preHandle执行{}", request);
 
         // 登录检查逻辑
         HttpSession session = request.getSession();
@@ -56,6 +63,7 @@ public class LoginInterceptor implements HandlerInterceptor {
      */
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        log.info("postHandle执行{}", modelAndView);
     }
 
     /**
@@ -68,51 +76,6 @@ public class LoginInterceptor implements HandlerInterceptor {
      */
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        log.info("afterCompletion执行{}", ex);
     }
 }
-```
-### 2. 配置拦截器(将编写的拦截器，注册到容器中)
-
-```java
-/**
- * @name: AdminWebConfig
- * @description:
- * @author: zichen
- * @date: 2021/5/15  15:22
- */
-@Configuration
-public class AdminWebConfig implements WebMvcConfigurer {
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor())
-                // 放行所有请求
-                .addPathPatterns("/**")
-                // 不拦截静态资源，以及登录页
-                .excludePathPatterns("/", "/login", "/css/**", "/fonts/**", "/images/**", "/js/**");
-    }
-}
-```
-### 3. 验证拦截器
-
-- 拦截的请求，跳转到登录页
-- 登录页提示“还未登录”
-- 这里使用 请求域存放提示信息比较合适
-    - 因为请求域的信息不需要登录就可以获取到，而session不登录是获取不到信息的
-
-```java
-// 拦截
-// 使用session，必须是登录之后才能拿到信息
-//session.setAttribute("msg", "请先登录！");
-//response.sendRedirect("/");
-// 使用request域，不需要登录之后就可以拿到消息
-request.setAttribute("msg", "请先登录！");
-request.getRequestDispatcher("/").forward(request, response);
-```
-
-![image-拦截效果](../image/拦截效果.png)
-
-- 拦截器执行过程
-    - preHandle
-    - postHandle
-    - afterCompletion
