@@ -1,6 +1,7 @@
 package com.zichen.admin.controller;
 
 import com.zichen.admin.bean.DataTest_01;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Controller
+@Slf4j
 public class TableController {
 
     @GetMapping("/basic_table")
@@ -24,6 +26,7 @@ public class TableController {
                 new DataTest_01("ccc", "14"),
                 new DataTest_01("ddd", "15"));
         model.addAttribute("dataTest_01s", dataTest_01s);
+        // log.info(10/0 + "");
         return "table/dynamic_table";
     }
 
