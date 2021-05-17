@@ -36,13 +36,13 @@ public class FormTestController {
 
         if (!headerImg.isEmpty()) {
             String originalFilename = headerImg.getOriginalFilename();
-            headerImg.transferTo(new File("E:\\idea-springboot\\SpringBoot\\boot-01-web-01-admin\\src\\main\\resources\\upload\\" + originalFilename));
+            headerImg.transferTo(new File("E:\\idea_workspace\\SpringBoot\\boot-01-web-01-admin\\src\\main\\resources\\upload\\" + originalFilename));
         }
         if (photos.length > 0) {
             for (MultipartFile photo : photos) {
                 if (!photo.isEmpty()) {
                     String originalFilename = photo.getOriginalFilename();
-                    photo.transferTo(new File("E:\\idea-springboot\\SpringBoot\\boot-01-web-01-admin\\src\\main\\resources\\upload\\" + originalFilename));
+                    photo.transferTo(new File("E:\\idea_workspace\\SpringBoot\\boot-01-web-01-admin\\src\\main\\resources\\upload\\" + originalFilename));
                 }
             }
         }

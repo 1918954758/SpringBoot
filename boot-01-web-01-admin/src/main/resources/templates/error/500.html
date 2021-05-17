@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -9,14 +9,8 @@
 
   <title>500 Page</title>
 
-  <link href="css/style.css" rel="stylesheet">
-  <link href="css/style-responsive.css" rel="stylesheet">
-
-  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-  <!--[if lt IE 9]>
-  <script src="js/html5shiv.js"></script>
-  <script src="js/respond.min.js"></script>
-  <![endif]-->
+    <!--common-->
+    <div th:include="common/commons :: commonLinks"></div>
 </head>
 
 <body class="error-page">
@@ -29,7 +23,7 @@
             <h2>OOOPS!!!</h2>
             <h3>Something went wrong.</h3>
             <p class="nrml-txt">Why not try refreshing you page? Or you can <a href="#">contact our support</a> if the problem persists.</p>
-            <a class="back-btn" href="index.html"> Back To Home</a>
+            <a class="back-btn" href="../index.html" th:href="@{/main.html}"> Back To Home</a>
         </section>
 
     </div>
