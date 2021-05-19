@@ -15,6 +15,7 @@ public class TableController {
 
     @GetMapping("/basic_table")
     public String basic_table() {
+        log.info(10/0 + "");
         return "table/basic_table";
     }
     //templates/table/basic_table.html
@@ -26,7 +27,6 @@ public class TableController {
                 new DataTest_01("ccc", "14"),
                 new DataTest_01("ddd", "15"));
         model.addAttribute("dataTest_01s", dataTest_01s);
-        log.info(10/0 + "");
         return "table/dynamic_table";
     }
 
