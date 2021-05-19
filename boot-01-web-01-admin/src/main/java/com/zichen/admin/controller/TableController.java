@@ -26,7 +26,7 @@ public class TableController {
                 new DataTest_01("ccc", "14"),
                 new DataTest_01("ddd", "15"));
         model.addAttribute("dataTest_01s", dataTest_01s);
-        // log.info(10/0 + "");
+        log.info(10/0 + "");
         return "table/dynamic_table";
     }
 
