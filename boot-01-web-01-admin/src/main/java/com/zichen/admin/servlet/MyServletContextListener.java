@@ -14,7 +14,7 @@ import javax.servlet.annotation.WebListener;
  * date: 2021/5/20 - 15:51
  */
 @Slf4j
-@WebListener
+//@WebListener
 public class MyServletContextListener implements ServletContextListener {
 
     @Override

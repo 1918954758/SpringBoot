@@ -13,7 +13,7 @@ import java.io.IOException;
  * date: 2021/5/20 - 15:33
  */
 @Slf4j
-@WebFilter(urlPatterns = {"/css/*", "/js/*", "/test"})
+//@WebFilter(urlPatterns = {"/css/*", "/js/*", "/test"})
 public class MyFilter implements Filter {
 
     @Override

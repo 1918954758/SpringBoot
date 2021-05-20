@@ -16,11 +16,13 @@ import java.io.IOException;
  * date: 2021/5/20 - 15:22
  */
 @Slf4j
-@WebServlet(urlPatterns = {"/test"})
+//@WebServlet(urlPatterns = {"/test"})
 public class MyServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.getWriter().write("qqqqqqq");
+        //resp.getWriter().write("使用@SpringComponentScan() 和 @WebServlet/@WebFilter/@WebListener");  注解的方式测试
+        resp.setCharacterEncoding("gbk");
+        resp.getWriter().write("使用注入ServletRegistrationBean/FilterRegistrationBean/ServletListenerRegistrationBean");
     }
 }
