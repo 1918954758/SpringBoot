@@ -34,6 +34,13 @@ public class MyRegistrationBeanConfig {
         return new FilterRegistrationBean(new MyFilter(), myServlet());
     }
 
+    /*@Bean
+    public FilterRegistrationBean myFilter02() {
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new MyFilter());
+        filterRegistrationBean.setUrlPatterns(Arrays.asList("/myFilter", "/css/*"));
+        return filterRegistrationBean;
+    }*/
+
     @Bean
     public ServletListenerRegistrationBean myListener() {
         return new ServletListenerRegistrationBean(new MyServletContextListener());
