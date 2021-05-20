@@ -53,3 +53,7 @@ public class MyRegistrationBeanConfig {
     }
 }
 ```
+
+- 细节 @Configuration(proxyBeanMethods = false)
+    - false的时候，每次调用 myServlet()的时候，都会创建一个对象new MyServlet()
+    - true的时候，创建一次，多次使用（保证依赖的组件是单例的）
