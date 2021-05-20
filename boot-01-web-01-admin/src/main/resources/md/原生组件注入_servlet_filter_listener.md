@@ -57,3 +57,18 @@ public class MyRegistrationBeanConfig {
 - 细节 @Configuration(proxyBeanMethods = false)
     - false的时候，每次调用 myServlet()的时候，都会创建一个对象new MyServlet()
     - true的时候，创建一次，多次使用（保证依赖的组件是单例的）
+    
+
+- 为什么自己写的Servlet映射的路径，不会被拦截器拦截？
+    - @WebServlet(urlPatterns = {"/test"})
+    
+- DispatcherServlet
+    - 使用@Bean放到容器中
+            - @Bean(name = DEFAULT_DISPATCHER_SERVLET_BEAN_NAME)
+              public DispatcherServlet dispatcherServlet(WebMvcProperties webMvcProperties) {}
+            - DEFAULT_DISPATCHER_SERVLET_BEAN_NAME = dispatcherServlet
+    - 通过DispatcherServletRegistrationBean 将servlet注册到容器中
+        - 映射路径是  "/";
+
+- Tomcat-Servlet
+    - 多个servlet都能处理到同一层路径，使用精确优先原则
