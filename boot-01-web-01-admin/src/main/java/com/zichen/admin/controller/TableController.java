@@ -15,7 +15,7 @@ public class TableController {
 
     @GetMapping("/basic_table")
     public String basic_table() {
-        log.info(10/0 + "");
+        //log.info(10/0 + "");
         return "table/basic_table";
     }
     //templates/table/basic_table.html
