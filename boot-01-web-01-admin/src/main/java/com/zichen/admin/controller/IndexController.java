@@ -28,7 +28,7 @@ public class IndexController {
      * @return
      */
     @PostMapping("/login")
-    public String index4Page(@RequestParam("user") User user, HttpSession session, Model model) {
+    public String index4Page(User user, HttpSession session, Model model) {
         if (Validate.validatelogin(session, user, model)) {
             // 防止表单重复提交
             return "redirect:/main.html";
