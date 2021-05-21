@@ -5,8 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 
-@ServletComponentScan("com.zichen.admin")
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@ServletComponentScan(basePackages = {"com.zichen.admin"})
+//@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@SpringBootApplication
 public class Boot01Web01AdminApplication {
 
     public static void main(String[] args) {
