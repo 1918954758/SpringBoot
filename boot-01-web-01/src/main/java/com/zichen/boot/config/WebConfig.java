@@ -17,9 +17,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 import org.springframework.web.accept.ParameterContentNegotiationStrategy;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
-import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.util.UrlPathHelper;
 
 import java.util.*;
@@ -30,9 +28,22 @@ import java.util.*;
  * @author: zichen
  * @date: 2021/5/4  23:49
  */
-@Configuration(proxyBeanMethods = false)
+//@EnableWebMvc  全局控制SpringMVC  还未测试好
+@Configuration
 @Slf4j
-public class WebConfig /*implements WebMvcConfigurer*/ {
+public class WebConfig implements WebMvcConfigurer {
+
+    /**
+     * 处理静态资源
+     * localhost:8080/aa/static/xxx
+     * @param
+     */
+   /* @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/aa/**")
+                .addResourceLocations("classpath:/static/");
+        //localhost:8080/aa/static/js/scripts.js
+    }*/
 
     @Bean
     public HiddenHttpMethodFilter hiddenHttpMethodFilter() {
