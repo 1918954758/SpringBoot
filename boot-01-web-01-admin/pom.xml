@@ -75,6 +75,14 @@
             <artifactId>mysql-connector-java</artifactId>
             <!--<version>8.0.20</version>-->
         </dependency>
+
+        <!--alibaba druid datasource-->
+        <!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.2.6</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.sql.DataSource;
+
 /**
  * @name: Boot01Web01AdminApplication
  * @description:
@@ -19,9 +21,14 @@ public class Boot01Web01AdminApplicationTests {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private DataSource dataSource;
+
     @Test
     public void contextLoads() {
         Integer count = jdbcTemplate.queryForObject("select count(*) from employee", Integer.class);
         log.info("{}", count);
+
+        log.info("自定义数据源类型：{}", dataSource.getClass());
     }
 }
