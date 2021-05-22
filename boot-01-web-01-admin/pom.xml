@@ -76,11 +76,18 @@
             <!--<version>8.0.20</version>-->
         </dependency>
 
-        <!--alibaba druid datasource-->
+        <!--alibaba druid datasource 引入druid-spring-boot-starter暂时注释掉-->
         <!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
-        <dependency>
+        <!--<dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
+            <version>1.2.6</version>
+        </dependency>-->
+
+        <!--引入 druid-spring-boot-starter-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
             <version>1.2.6</version>
         </dependency>
     </dependencies>

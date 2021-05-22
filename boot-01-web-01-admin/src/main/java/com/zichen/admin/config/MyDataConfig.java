@@ -19,15 +19,16 @@ import java.util.Arrays;
  * @author: zichen
  * @date: 2021/5/22  10:37
  */
-@Configuration
+@Deprecated//过时注解
+//@Configuration
 public class MyDataConfig {
 
     /*
      * 配置druid数据源
      * @return
      */
-    @ConfigurationProperties("spring.datasource")
-    @Bean
+    //@ConfigurationProperties("spring.datasource")
+    //@Bean
     public DataSource dataSource() throws SQLException {
         DruidDataSource druidDataSource = new DruidDataSource();
         // 添加监控和防火墙
@@ -39,7 +40,7 @@ public class MyDataConfig {
      * 配置druid监控页
      * @return
      */
-    @Bean
+    //@Bean
     public ServletRegistrationBean statViewServlet() {
         StatViewServlet statViewServlet = new StatViewServlet();
         ServletRegistrationBean<StatViewServlet> registrationBean = new ServletRegistrationBean<>(statViewServlet, "/druid/*");
@@ -56,7 +57,7 @@ public class MyDataConfig {
      * 配置web监控页
      * @return
      */
-    @Bean
+    //@Bean
     public FilterRegistrationBean webStatFilter() {
         FilterRegistrationBean<WebStatFilter> registrationBean = new FilterRegistrationBean<>(new WebStatFilter());
         registrationBean.addUrlPatterns("/*");
