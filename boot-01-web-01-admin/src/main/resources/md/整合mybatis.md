@@ -322,7 +322,7 @@ public interface CityMapper {
 mybatis:
   type-aliases-package: com.zichen.admin.bean
   # 添加mapper映射文件，不然找不到 mybatis/mapper/CityMapper.xml
-  mapper-locations: classpath:mybatis/mapper/UserTbMapper.xml,mybatis/mapper/CityMapper.xml
+  mapper-locations: classpath:classpath:mybatis/mapper/*.xml
 ```
 
 - 编写service接口

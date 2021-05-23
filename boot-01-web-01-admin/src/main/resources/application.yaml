@@ -70,7 +70,7 @@ mybatis:
   #mybatis global config
   #config-location: classpath:mybatis/mybatis-config.xml
   #mybatis mapper config
-  mapper-locations: classpath:mybatis/mapper/UserTbMapper.xml,mybatis/mapper/CityMapper.xml
+  mapper-locations: classpath:mybatis/mapper/*.xml
   configuration:
     map-underscore-to-camel-case: true
   type-aliases-package: com.zichen.admin.bean

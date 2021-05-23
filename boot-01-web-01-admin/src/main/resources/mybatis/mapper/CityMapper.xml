@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zichen.admin.mapper.CityMapper">
-    <insert id="insertCity" parameterType="com.zichen.admin.bean.City">
+    <insert id="insertCity" parameterType="city">
         insert into city(`name`, `state`, `country`) values (#{name}, #{state}, #{country})
     </insert>
 </mapper>
