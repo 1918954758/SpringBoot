@@ -379,3 +379,18 @@ public class CityController {
 - 使用PostMan测试
 
 ![image-整合Mybatis使用注解和xml配置混搭测试xml配置的结果](../image/整合Mybatis使用注解和xml配置混搭测试xml配置的结果.png)
+
+
+- 如果想拿到数据库的自增主键的值，需要配置mapper映射文件 中的 useGeneratedKeys="true" keyProperty="id"属性
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zichen.admin.mapper.CityMapper">
+    <insert id="insertCity" parameterType="city" useGeneratedKeys="true" keyProperty="id">
+        insert into city(`name`, `state`, `country`) values (#{name}, #{state}, #{country})
+    </insert>
+</mapper>
+```
+- 这样，就可以拿到数据库的自增主键的值了，会将其放到 com.zichen.admin.mapper.City中
