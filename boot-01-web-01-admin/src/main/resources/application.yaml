@@ -59,3 +59,10 @@ my:
     datasource:
       druid:
         aop-patterns: com.zichen.admin.*
+
+#mybatis config
+mybatis:
+  #mybatis global config
+  config-location: classpath:mybatis/mybatis-config.xml
+  #mybatis mapper config
+  mapper-locations: classpath:mybatis/mapper/UserTbMapper.xml
