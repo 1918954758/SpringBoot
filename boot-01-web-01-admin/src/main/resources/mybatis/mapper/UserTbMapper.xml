@@ -3,12 +3,12 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zichen.admin.mapper.UserTbMapper">
-    <select id="getUserTb" resultType="UserTb">
-        select * from dpet where dpetNo = #{dpetNo}
+    <select id="getUserTb" resultType="userTb">
+        select * from usertb where id = #{id}
     </select>
 
     <!--UPDATE testdb.dpet SET dpetno=0, dpetname='', loc='';-->
-    <insert id="insertUserTb" parameterType="hashmap">
+    <insert id="insertDpet" parameterType="hashmap">
         insert into dpet(dpetno, dpetname, loc) values (#{dpetNo}, #{dpetName}, #{loc})
     </insert>
 </mapper>

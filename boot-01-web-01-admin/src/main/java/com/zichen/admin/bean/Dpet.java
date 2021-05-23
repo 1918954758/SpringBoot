@@ -7,15 +7,12 @@ import lombok.ToString;
  * @name: UserTb
  * @description:
  * @author: zichen
- * @date: 2021/5/23  16:14
+ * @date: 2021/5/23  12:45
  */
 @Data
 @ToString
-public class UserTb {
-
-    private Integer id;
-    private String uName;
-    private String  uCreateTime;
-    private int age;
-
+public class Dpet {
+    private Integer dpetNo;
+    private String dpetName;
+    private String loc;
 }

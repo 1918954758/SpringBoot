@@ -19,11 +19,11 @@ public class UserTbService {
     @Autowired
     private UserTbMapper userTbMapper;
 
-    public UserTb getUserTbByDpetNo(Integer dpetNo) {
-        return userTbMapper.getUserTb(dpetNo);
+    public UserTb getUserTbByDpetNo(Integer id) {
+        return userTbMapper.getUserTb(id);
     }
 
-    public void insertUserTb(Map map) {
-        userTbMapper.insertUserTb(map);
+    public void insertDpet(Map map) {
+        userTbMapper.insertDpet(map);
     }
 }

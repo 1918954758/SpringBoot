@@ -45,9 +45,10 @@ mybatis:
 @Data
 @ToString
 public class UserTb {
-    private Integer dpetNo;
-    private String dpetName;
-    private String loc;
+    private Integer id;
+    private String uName;
+    private String  uCreateTime;
+    private int age;
 }
 ```
 
@@ -55,7 +56,7 @@ public class UserTb {
 ```java
 @Mapper
 public interface UserTbMapper {
-    UserTb getUserTb(Integer dpetNo);
+    UserTb getUserTb(Integer id);
 }
 ```
      
@@ -68,23 +69,31 @@ mybatis/mapper/UserTbMapper.xml
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zichen.admin.mapper.UserTbMapper">
-    <select id="getUserTb" resultType="com.zichen.admin.bean.UserTb">
-        select * from dpet where dpetNo = #{dpetNo}
+    <select id="getUserTb" resultType="userTb">
+        select * from usertb where id = #{id}
     </select>
 </mapper>
 ```
 
-### 6. 在yaml中配置mybatis的mapper文件位置
+### 6. 配置别名
+```yaml
+mybatis:
+  #mybatis global config
+  #config-location: classpath:mybatis/mybatis-config.xml
+  type-aliases-package: com.zichen.admin.bean
+```
+
+### 7. 在yaml中配置mybatis的mapper文件位置
 ```yaml
 #mybatis config
 mybatis:
   #mybatis global config
-  config-location: classpath:mybatis/mybatis-config.xml
+  #config-location: classpath:mybatis/mybatis-config.xml
   #mybatis mapper config
   mapper-locations: classpath:mybatis/mapper/UserTbMapper.xml
 ```
 
-### 7. 编写service文件
+### 8. 编写service文件
 ```java
 @Service
 public class UserTbService {
@@ -92,13 +101,13 @@ public class UserTbService {
     @Autowired
     private UserTbMapper userTbMapper;
 
-    public UserTb getUserTbByDpetNo(Integer dpetNo) {
-        return userTbMapper.getUserTb(dpetNo);
+    public UserTb getUserTbByDpetNo(Integer id) {
+        return userTbMapper.getUserTb(id);
     }
 }
 ```
 
-### 8. 编写controller测试文件
+### 9. 编写controller测试文件
 ```java
 @Controller
 public class UserTbController {
@@ -124,7 +133,8 @@ public class UserTbController {
 
 
 ### 14. 补充
-- mybatis-config.xml 全局配置
+- mybatis-config.xml 全局配置可以配置的setting和别名
+
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE configuration
@@ -154,8 +164,38 @@ public class UserTbController {
 
     <!-- Aliases config -->
     <typeAliases>
-        <typeAlias alias="UserTb" type="com.zichen.admin.bean.UserTb"/>
+        <typeAlias alias="UserTb" type="com.zichen.admin.bean.Dpet"/>
     </typeAliases>
 </configuration>
+```
+
+- 注意，yaml中全局配置文件路径的配置可以不用写，因为都在yaml 中配置
+
+### 15. 修改yaml中的配置，注释掉全局配置路径，添加驼峰命名和别名规则
+```yaml
+mybatis:
+  #mybatis global config
+  #config-location: classpath:mybatis/mybatis-config.xml
+  #mybatis mapper config
+  mapper-locations: classpath:mybatis/mapper/UserTbMapper.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  type-aliases-package: com.zichen.admin.bean
+```
+```yaml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zichen.admin.mapper.UserTbMapper">
+    <select id="getUserTb" resultType="userTb">
+        select * from dpet where dpetNo = #{dpetNo}
+    </select>
+
+    <!--UPDATE testdb.dpet SET dpetno=0, dpetname='', loc='';-->
+    <insert id="insertUserTb" parameterType="hashmap">
+        insert into dpet(dpetno, dpetname, loc) values (#{dpetNo}, #{dpetName}, #{loc})
+    </insert>
+</mapper>
 ```
 ## mybatis自动配置的方式

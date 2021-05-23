@@ -8,7 +8,7 @@ import java.util.Map;
 @Mapper
 public interface UserTbMapper {
 
-    UserTb getUserTb(Integer dpetNo);
+    UserTb getUserTb(Integer id);
 
-    void insertUserTb(Map map);
+    void insertDpet(Map map);
 }

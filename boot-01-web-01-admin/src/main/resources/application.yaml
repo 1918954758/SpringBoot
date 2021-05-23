@@ -63,6 +63,9 @@ my:
 #mybatis config
 mybatis:
   #mybatis global config
-  config-location: classpath:mybatis/mybatis-config.xml
+  #config-location: classpath:mybatis/mybatis-config.xml
   #mybatis mapper config
   mapper-locations: classpath:mybatis/mapper/UserTbMapper.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  type-aliases-package: com.zichen.admin.bean
