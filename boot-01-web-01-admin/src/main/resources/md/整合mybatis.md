@@ -394,3 +394,18 @@ public class CityController {
 </mapper>
 ```
 - 这样，就可以拿到数据库的自增主键的值了，会将其放到 com.zichen.admin.mapper.City中
+
+- 这样的，属性调整，也可以使用注解的方式来调整
+```java
+@Mapper
+public interface CityMapper {
+
+    @Select("select * from City where id = #{id}")
+    City getCityById(int id);
+
+    @Insert("insert into city(`name`, `state`, `country`) values (#{name}, #{state}, #{country})")
+    //@Options(...) 是注解@Insert的调整项
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    void insertCity(City city);
+}
+```
