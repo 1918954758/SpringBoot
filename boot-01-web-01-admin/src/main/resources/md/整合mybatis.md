@@ -18,7 +18,7 @@
 </dependencys>
 ```
 
-## mybatis纯配置的方式
+## 1. mybatis纯配置的方式
 
 ### 1. 配置mybatis全局配置
 location： mybatis/mybatis-config.xml
@@ -198,4 +198,91 @@ mybatis:
     </insert>
 </mapper>
 ```
-## mybatis自动配置的方式
+
+### 16. 编写步骤
+- 导入 mybatis 官方 starter
+- 编写mapper接口，标注 @Mapper 注解
+- 编写sql映射文件，并绑定mapper接口
+- 在application.yaml中指定mapper配置文件的位置，以及指定全局配置文件的信息（建议：配置在mybatis.configuration中）
+
+## 2. mybatis纯注解版
+[quick_start](https://github.com/mybatis/spring-boot-starter/wiki/Quick-Start)
+
+### 1. 准备一张表
+```sql
+CREATE TABLE testdb.city
+(
+  id      INT(11) PRIMARY KEY auto_increment,
+  name    VARCHAR(30),
+  state   VARCHAR(30),
+  country VARCHAR(30)
+);
+```
+- insert data
+```sql
+INSERT INTO testdb.city (name, state, country) values ('内蒙古', '03', '中国');
+INSERT INTO testdb.city (name, state, country) values ('北京', '01', '中国');
+INSERT INTO testdb.city (name, state, country) values ('上海', '01', '中国');
+INSERT INTO testdb.city (name, state, country) values ('江苏', '03', '中国');
+INSERT INTO testdb.city (name, state, country) values ('天津', '02', '中国');
+INSERT INTO testdb.city (name, state, country) values ('东京', '01', '日本');
+INSERT INTO testdb.city (name, state, country) values ('耶鲁', '03', '美国');
+```
+
+### 2. 编写实体类，映射数据库数据使用
+```java
+@Data
+@ToString
+public class City {
+    private Long id;
+    private String name;
+    private String state;
+    private String country;
+}
+```
+
+### 3. 编写mapper接口
+```java
+@Mapper
+public interface CityMapper {
+
+    @Select("select * from City where id = #{id}")
+    City getCityById(int id);
+}
+```
+
+### 4. 编写service接口
+```java
+@Service
+public class CityService {
+
+    @Autowired
+    private CityMapper cityMapper;
+    
+    public City getCityById(int id) {
+        return cityMapper.getCityById(id);
+    }
+}
+```
+
+### 5. 编写controller接口
+```java
+@Controller
+public class CityController {
+
+    @Autowired
+    private CityService cityService;
+
+    @ResponseBody
+    @GetMapping("/queryCityById")
+    public City getCityById(@RequestParam("id") int id) {
+        return cityService.getCityById(id);
+    }
+}
+```
+
+### 6. 测试Mybatis纯注解的方式访问数据库
+```json
+{"id":3,"name":"上海","state":"01","country":"中国"}
+```
+![image-mybaits纯注解的方式访问数据库测试结果](../image/mybaits纯注解的方式访问数据库测试结果.png)
