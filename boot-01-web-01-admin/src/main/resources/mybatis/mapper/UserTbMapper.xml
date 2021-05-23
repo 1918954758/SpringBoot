@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zichen.admin.mapper.UserTbMapper">
-    <select id="getUserTb" resultType="com.zichen.admin.bean.UserTb">
+    <select id="getUserTb" resultType="UserTb">
         select * from dpet where dpetNo = #{dpetNo}
     </select>
 
