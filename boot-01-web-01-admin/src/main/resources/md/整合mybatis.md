@@ -285,4 +285,97 @@ public class CityController {
 ```json
 {"id":3,"name":"上海","state":"01","country":"中国"}
 ```
-![image-mybaits纯注解的方式访问数据库测试结果](../image/mybaits纯注解的方式访问数据库测试结果.png)
+![image-mybaits纯注解的方式访问数据库测试结果](../image/mybaits纯注解的方式访问数据库测试结果.png)、
+
+
+### 7. 如果有查询语句很长，我们也可以使用注解和配置文件混合使用
+
+#### 1. 增加一个查询（使用配置文件版）
+- 添加mapper接口
+```java
+@Mapper
+public interface CityMapper {
+
+    @Select("select * from City where id = #{id}")
+    City getCityById(int id);
+
+    void insertCity(City city);
+}
+```
+
+- 添加mapper映射文件
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zichen.admin.mapper.CityMapper">
+    <insert id="insertCity" parameterType="city">
+        insert into city(`name`, `state`, `country`) values (#{name}, #{state}, #{country})
+    </insert>
+</mapper>
+```
+
+- 实体文件别名在application.yaml中有配置
+```yaml
+# 实体类所在的包，别名首字母小写即可自动找到
+mybatis:
+  type-aliases-package: com.zichen.admin.bean
+  # 添加mapper映射文件，不然找不到 mybatis/mapper/CityMapper.xml
+  mapper-locations: classpath:mybatis/mapper/UserTbMapper.xml,mybatis/mapper/CityMapper.xml
+```
+
+- 编写service接口
+```java
+@Service
+public class CityService {
+
+    @Autowired
+    private CityMapper cityMapper;
+
+    public City getCityById(int id) {
+        return cityMapper.getCityById(id);
+    }
+
+    public void saveCity(City city) {
+        cityMapper.insertCity(city);
+    }
+}
+```
+
+- 编写controller接口
+
+```java
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+public class CityController {
+
+    @Autowired
+    private CityService cityService;
+
+    @ResponseBody
+    @GetMapping("/queryCityById")
+    public City getCityById(@RequestParam("id") int id) {
+        return cityService.getCityById(id);
+    }
+
+    @ResponseBody
+    //@PostMapping("/saveCity")
+    @GetMapping("/saveCity")
+    public void saveCity(City city) {
+        cityService.saveCity(city);
+    }
+}
+```
+
+- Controller中@ResponseBody注解是需要的，因为无返回void，在底层也会有响应的解析，需要@ResponseBody
+
+- 使用@PostMapping(/saveCity)报错 postman测试报错 405  Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'POST' not supported]
+- 该问题还没有解决，不只是什么原因
+- 暂时先改成@GetMapping("/saveCity")测试
+
+
+- 使用PostMan测试
+
+![image-整合Mybatis使用注解和xml配置混搭测试xml配置的结果](../image/整合Mybatis使用注解和xml配置混搭测试xml配置的结果.png)

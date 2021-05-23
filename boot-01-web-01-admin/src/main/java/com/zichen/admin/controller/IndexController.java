@@ -3,7 +3,6 @@ package com.zichen.admin.controller;
 import com.zichen.admin.bean.User;
 import com.zichen.admin.util.Validate;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.session.StandardSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;

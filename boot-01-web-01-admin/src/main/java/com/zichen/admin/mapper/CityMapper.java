@@ -15,4 +15,6 @@ public interface CityMapper {
 
     @Select("select * from City where id = #{id}")
     City getCityById(int id);
+
+    void insertCity(City city);
 }

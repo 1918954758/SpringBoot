@@ -51,6 +51,11 @@ spring:
       #<IP>
       #或者<IP>/<SUB_NET_MASK_size>其中128.242.127.1/24
       #24表示，前面24位是子网掩码，比对的时候，前面24位相同就匹配,不支持IPV6。
+  #开启mvc _method方法
+#  mvc:
+#    hiddenmethod:
+#      filter:
+#        enabled: true
 
 # 使用默认配置的aop功能，druid的spring监控功能是空白
 # 自己重写aop配置类，结果是可以的
@@ -65,7 +70,7 @@ mybatis:
   #mybatis global config
   #config-location: classpath:mybatis/mybatis-config.xml
   #mybatis mapper config
-  mapper-locations: classpath:mybatis/mapper/UserTbMapper.xml
+  mapper-locations: classpath:mybatis/mapper/UserTbMapper.xml,mybatis/mapper/CityMapper.xml
   configuration:
     map-underscore-to-camel-case: true
   type-aliases-package: com.zichen.admin.bean
