@@ -409,3 +409,15 @@ public interface CityMapper {
     void insertCity(City city);
 }
 ```
+
+#### 2. 最佳实战
+- 1. 引入mybatis-state人
+- 2. 配置application.yaml中，指定mapper-location位置即可
+- 3. 编写mapper接口并标注@Mapper注解
+- 4. 简单方法直接注解方式
+- 5. 复杂方法编写mapper.xml进行绑定映射
+
+
+- 由于每一个mapper接口都需要标注@Mapper注解
+- 我们可以在启动类上标注一个总的Mapper注解 @MapperScan("com.zichen.admin.mapper")
+- 其他的mapper就不需要标注了
