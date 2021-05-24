@@ -1,0 +1,100 @@
+1. 生成data文件夹
+D:\software\mysql-8.0.20-winx64\bin> 
+mysqld --initialize-insecure --user=mysql
+
+2. 安装
+D:\software\mysql-8.0.20-winx64\bin> mysqld -install
+Service successfully installed
+
+3. 启动mysql
+C:\Users\Administrator> net start mysql
+MySQL 服务正在启动 ..
+MySQL 服务已经启动成功。
+
+4. 停止mysql
+C:\Users\Administrator> net stop mysql
+...
+
+5. 修改用户名密码
+
+----------------------------------------
+2.配置环境变量，可以在全局cmd下操作命令行
+
+系统变量添加上mysql安装路径，比如C:\Program Files\MySQL\MySQL Server 8.0\bin\
+
+3.初始化，安装，启动（自动生成data文件夹）
+
+mysqld --install
+
+mysqld --initialize
+
+net start mysql（根据服务不同，我的是mysql80）
+
+4.登录mysql
+
+mysql -u root -p
+
+5.忘记密码
+
+(1)先停止服务：net stop mysql（根据服务不同，我的是mysql80）
+
+(2)免密登录设置：mysqld --console --skip-grant-tables --shared-memory
+
+(3)开一个新cmd窗口登录：mysql -u root
+
+(4)修改密码：
+
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
+6.退出：mysql>exit;
+
+7.最重要的是每一行mysql命令后面都需要加分号，否则没有用！！！
+----------------------------------------
+
+1.找不到初始密码可以在my.ini中[mysqld] 添加：
+skip-grant-tables
+2.修改MySQL数据库配置文件无密码登录后，修改密码报错：
+ERROR 1290 (HY000): The MySQL server is running with the --skip-grant-tables option so it cannot execute this statement
+
+3.先执行：
+flush privileges;
+4.再执行修改密码命令，可以了：
+set password for root@localhost=password('root');
+
+--------------------------------------------
+1. 
+CREATE DATABASE IF NOT EXISTS zichen DEFAULT CHARACTER SET utf8;
+
+CREATE TABLE zichen.city
+(
+  id      INT(11) PRIMARY KEY auto_increment,
+  name    VARCHAR(30),
+  state   VARCHAR(30),
+  country VARCHAR(30)
+);
+
+INSERT INTO zichen.city (name, state, country) values ('内蒙古', '03', '中国');
+INSERT INTO zichen.city (name, state, country) values ('北京', '01', '中国');
+INSERT INTO zichen.city (name, state, country) values ('上海', '01', '中国');
+INSERT INTO zichen.city (name, state, country) values ('江苏', '03', '中国');
+INSERT INTO zichen.city (name, state, country) values ('天津', '02', '中国');
+INSERT INTO zichen.city (name, state, country) values ('东京', '01', '日本');
+INSERT INTO zichen.city (name, state, country) values ('耶鲁', '03', '美国');
+
+2.
+CREATE DATABASE IF NOT EXISTS testdb DEFAULT CHARACTER SET utf8;
+
+CREATE TABLE testdb.city
+(
+  id      INT(11) PRIMARY KEY auto_increment,
+  name    VARCHAR(30),
+  state   VARCHAR(30),
+  country VARCHAR(30)
+);
+
+INSERT INTO testdb.city (name, state, country) values ('内蒙古', '03', '中国');
+INSERT INTO testdb.city (name, state, country) values ('北京', '01', '中国');
+INSERT INTO testdb.city (name, state, country) values ('上海', '01', '中国');
+INSERT INTO testdb.city (name, state, country) values ('江苏', '03', '中国');
+INSERT INTO testdb.city (name, state, country) values ('天津', '02', '中国');
+INSERT INTO testdb.city (name, state, country) values ('东京', '01', '日本');
+INSERT INTO testdb.city (name, state, country) values ('耶鲁', '03', '美国');
