@@ -50,4 +50,11 @@ public class UserTbController {
         userTbService.saveUserTb(userTb);
         return userTb;
     }
+
+    @ResponseBody
+    @PostMapping("/saveUserTb4Annotation")
+    public UserTb saveUserTb4Annotation(UserTb userTb) {
+        userTbService.saveUserTb4Annotation(userTb);
+        return userTb;
+    }
 }

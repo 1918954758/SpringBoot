@@ -424,6 +424,8 @@ public interface CityMapper {
 
 
 #### 3. @PostMapping("/saveUserTb")测试
+**post请求，传递UserTb作为参数，插入数据到数据库，将自增ID返回到页面，mapping映射配置测试**
+
 - Controller
 ```java
 @Controller
@@ -503,4 +505,66 @@ mybatis:
 
 - PostMan 测试
 
+![image-PostMapping请求测试结果](../image/PostMapping请求测试结果.png)
+
+#### 4. @PostMapping("/saveUserTb")请求
+**post请求，传递UserTb作为参数，插入数据到数据库，将自增ID返回到页面，纯注解方式测试**
+
+- Controller
+
+```java
+@Controller
+public class UserTbController {
+
+    @Autowired
+    private UserTbService userTbService;
+
+    @ResponseBody
+    @PostMapping("/saveUserTb")
+    public UserTb saveUserTb(UserTb userTb) {
+        userTbService.saveUserTb(userTb);
+        return userTb;
+    }
+    
+    @ResponseBody
+    @PostMapping("/saveUserTb4Annotation")
+    public UserTb saveUserTb4Annotation(UserTb userTb) {
+        userTbService.saveUserTb4Annotation(userTb);
+        return userTb;
+    }
+}
+```
+- mapper
+
+```java
+@Mapper
+public interface UserTbMapper {
+
+    void saveUserTb(UserTb userTb);
+
+    @Insert("insert into userTb(uName, uCreateTime, age) values (#{uName}, #{uCreateTime}, #{age})")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    void saveUserTb4Annotation(UserTb userTb);
+}
+```
+- service
+
+```java
+@Service
+public class UserTbService {
+
+    @Autowired
+    private UserTbMapper userTbMapper;
+
+    public void saveUserTb(UserTb userTb) {
+        userTbMapper.saveUserTb(userTb);
+    }
+
+    public void saveUserTb4Annotation(UserTb userTb) {
+        userTbMapper.saveUserTb4Annotation(userTb);
+    }
+}
+```
+
+- postman测试
 ![image-PostMapping请求测试结果](../image/PostMapping请求测试结果.png)

@@ -30,4 +30,8 @@ public class UserTbService {
     public void saveUserTb(UserTb userTb) {
         userTbMapper.saveUserTb(userTb);
     }
+
+    public void saveUserTb4Annotation(UserTb userTb) {
+        userTbMapper.saveUserTb4Annotation(userTb);
+    }
 }
