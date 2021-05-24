@@ -15,7 +15,21 @@ SpringBoot
   - gradle6.7.bin
   - SpringBoot2.4.3
   - SpringBoot2.4.5
-- 笔记做的比较详细，最好集合代码理解会更好
+- SpringBoot自定义ParameterResolve
+- SpringBoot自定义ReturnValueHandle
+- SpringBoot自定义ModelAndView
+- SpringBoot整合拦截器
+- SpringBoot整合druid数据源
+- SpringBoot简单操作druid监控
+  - sql监控
+  - web监控
+  - session监控
+  - etc
+- SpringBoot整合Mybatis
+  - MybatisX比较好用
+- ...
+
+- 笔记做的比较详细，最好结合代码理解会更好
 
 
 学习资源出处：
