@@ -38,4 +38,11 @@ public class CityController {
         city.setCountry(country);
         cityService.saveCity(city);
     }
+
+    @ResponseBody
+    @PostMapping("/insertCity")
+    public City insertCity(City city) {
+        cityService.insertCity(city);
+        return city;
+    }
 }

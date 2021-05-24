@@ -20,5 +20,7 @@ public interface CityMapper {
 
     //@Insert("insert into city(`name`, `state`, `country`) values (#{name}, #{state}, #{country})")
     //@Options(useGeneratedKeys = true, keyProperty = "id")
+    void saveCity(City city);
+
     void insertCity(City city);
 }

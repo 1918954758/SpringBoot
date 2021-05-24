@@ -22,6 +22,10 @@ public class CityService {
     }
 
     public void saveCity(City city) {
+        cityMapper.saveCity(city);
+    }
+
+    public void insertCity(City city) {
         cityMapper.insertCity(city);
     }
 }

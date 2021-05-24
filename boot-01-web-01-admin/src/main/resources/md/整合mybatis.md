@@ -373,10 +373,11 @@ public class CityController {
 
 - 使用@PostMapping(/saveCity)报错 postman测试报错 405  Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'POST' not supported]
 - 该问题还没有解决，不只是什么原因
-- 暂时先改成@GetMapping("/saveCity")测试
-
+- 该问题已经解决，原因是有拦截，放行/insertCity 请求即可
 
 - 使用PostMan测试
+
+![image-整合Mybatis使用注解和xml配置混搭测试注解的结果](../image/整合Mybatis使用注解和xml配置混搭测试注解的结果.png)
 
 ![image-整合Mybatis使用注解和xml配置混搭测试xml配置的结果](../image/整合Mybatis使用注解和xml配置混搭测试xml配置的结果.png)
 
