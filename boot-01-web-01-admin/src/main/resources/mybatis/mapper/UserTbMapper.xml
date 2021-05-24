@@ -11,4 +11,8 @@
     <insert id="insertDpet" parameterType="hashmap">
         insert into dpet(dpetno, dpetname, loc) values (#{dpetNo}, #{dpetName}, #{loc})
     </insert>
+
+    <insert id="saveUserTb" parameterType="userTb" useGeneratedKeys="true" keyProperty="id">
+        insert into userTb(uName, uCreateTime, age) values (#{uName}, #{uCreateTime}, #{age})
+    </insert>
 </mapper>

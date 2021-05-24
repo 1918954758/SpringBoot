@@ -11,4 +11,6 @@ public interface UserTbMapper {
     UserTb getUserTb(Integer id);
 
     void insertDpet(Map map);
+
+    void saveUserTb(UserTb userTb);
 }

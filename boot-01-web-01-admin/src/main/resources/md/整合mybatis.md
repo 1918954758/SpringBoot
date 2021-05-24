@@ -421,3 +421,86 @@ public interface CityMapper {
 - 由于每一个mapper接口都需要标注@Mapper注解
 - 我们可以在启动类上标注一个总的Mapper注解 @MapperScan("com.zichen.admin.mapper")
 - 其他的mapper就不需要标注了
+
+
+#### 3. @PostMapping("/saveUserTb")测试
+- Controller
+```java
+@Controller
+public class UserTbController {
+
+    @Autowired
+    private UserTbService userTbService;
+
+    @ResponseBody
+    @PostMapping("/saveUserTb")
+    public UserTb saveUserTb(UserTb userTb) {
+        userTbService.saveUserTb(userTb);
+        return userTb;
+    }
+}
+```
+- Service
+
+```java
+@Service
+public class UserTbService {
+
+    @Autowired
+    private UserTbMapper userTbMapper;
+
+    public void saveUserTb(UserTb userTb) {
+        userTbMapper.saveUserTb(userTb);
+    }
+}
+```
+- mapper
+
+```java
+@Mapper
+public interface UserTbMapper {
+
+    void saveUserTb(UserTb userTb);
+}
+```
+- mapper映射
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zichen.admin.mapper.UserTbMapper">
+    <insert id="saveUserTb" parameterType="userTb" useGeneratedKeys="true" keyProperty="id">
+        insert into userTb(uName, uCreateTime, age) values (#{uName}, #{uCreateTime}, #{age})
+    </insert>
+</mapper>
+```
+- UserTb实体类
+
+```java
+@Data
+@ToString
+public class UserTb {
+
+    private Integer id;
+    private String uName;
+    private String  uCreateTime;
+    private int age;
+
+}
+```
+
+- 映射地址
+
+```yaml
+mybatis:
+  #mybatis global config
+  #config-location: classpath:mybatis/mybatis-config.xml
+  #mybatis mapper config
+  mapper-locations: classpath:mybatis/mapper/*.xml
+```
+
+- PostMan 测试
+
+![image-PostMapping请求测试结果](../image/PostMapping请求测试结果.png)

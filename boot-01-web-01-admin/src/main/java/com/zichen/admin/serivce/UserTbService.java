@@ -26,4 +26,8 @@ public class UserTbService {
     public void insertDpet(Map map) {
         userTbMapper.insertDpet(map);
     }
+
+    public void saveUserTb(UserTb userTb) {
+        userTbMapper.saveUserTb(userTb);
+    }
 }

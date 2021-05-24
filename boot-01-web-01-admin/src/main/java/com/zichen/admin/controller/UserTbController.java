@@ -6,6 +6,7 @@ import com.zichen.admin.serivce.UserTbService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -41,5 +42,12 @@ public class UserTbController {
         map.put("dpetName", dpetName);
         map.put("loc", loc);
         userTbService.insertDpet(map);
+    }
+
+    @ResponseBody
+    @PostMapping("/saveUserTb")
+    public UserTb saveUserTb(UserTb userTb) {
+        userTbService.saveUserTb(userTb);
+        return userTb;
     }
 }
