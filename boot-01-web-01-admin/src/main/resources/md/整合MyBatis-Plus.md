@@ -253,3 +253,7 @@ public class MyBaitsPlusSimpleTest {
 }
 ```
 
+## 8. 补充
+- 默认规则，MyBatis-Plus 会将实体类名当做表名（eg. User），去数据库查找表
+- 如果数据库的表名和实体类名不对应，那么可以使用注解 @TableName(value = "table_name")（value可以不用写）
+

@@ -14,24 +14,13 @@ import java.util.Map;
  * @date: 2021/5/23  12:51
  */
 @Service
-public class UserTbService {
+public interface UserTbService {
 
-    @Autowired
-    private UserTbMapper userTbMapper;
+    public UserTb getUserTbByDpetNo(Integer id);
 
-    public UserTb getUserTbByDpetNo(Integer id) {
-        return userTbMapper.getUserTb(id);
-    }
+    public void insertDpet(Map map);
 
-    public void insertDpet(Map map) {
-        userTbMapper.insertDpet(map);
-    }
+    public void saveUserTb(UserTb userTb);
 
-    public void saveUserTb(UserTb userTb) {
-        userTbMapper.saveUserTb(userTb);
-    }
-
-    public void saveUserTb4Annotation(UserTb userTb) {
-        userTbMapper.saveUserTb4Annotation(userTb);
-    }
+    public void saveUserTb4Annotation(UserTb userTb);
 }

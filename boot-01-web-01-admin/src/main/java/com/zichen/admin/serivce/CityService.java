@@ -12,20 +12,11 @@ import org.springframework.stereotype.Service;
  * @date: 2021/5/23  16:49
  */
 @Service
-public class CityService {
+public interface CityService {
 
-    @Autowired
-    private CityMapper cityMapper;
+    public City getCityById(int id);
 
-    public City getCityById(int id) {
-        return cityMapper.getCityById(id);
-    }
+    public void saveCity(City city);
 
-    public void saveCity(City city) {
-        cityMapper.saveCity(city);
-    }
-
-    public void insertCity(City city) {
-        cityMapper.insertCity(city);
-    }
+    public void insertCity(City city);
 }
