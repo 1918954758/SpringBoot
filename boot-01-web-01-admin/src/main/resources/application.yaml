@@ -65,12 +65,17 @@ my:
       druid:
         aop-patterns: com.zichen.admin.*
 
-#mybatis config
-mybatis:
+#mybatis config   由于引入mybatis-plus，mybatis的starter依赖被注掉，mybatis相关配置注掉
+#mybatis:
   #mybatis global config
   #config-location: classpath:mybatis/mybatis-config.xml
   #mybatis mapper config
-  mapper-locations: classpath:mybatis/mapper/*.xml
+  #mapper-locations: classpath:mybatis/mapper/*.xml,classpath:mapper/*.xml
+  #configuration:
+    #map-underscore-to-camel-case: true
+  #type-aliases-package: com.zichen.admin.bean
+
+mybatis-plus:
+  type-aliases-package: com.zichen.admin.bean
   configuration:
     map-underscore-to-camel-case: true
-  type-aliases-package: com.zichen.admin.bean
