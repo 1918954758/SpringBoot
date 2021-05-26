@@ -44,7 +44,7 @@ public class TableController {
         //List<User> list = userService.list();
         //model.addAttribute("users", list);
 
-        Page<User> userPage = new Page<>(currentPage, 2);
+        Page<User> userPage = new Page<>(currentPage, 5);
         Page<User> page = userService.page(userPage);
         // 当前页数
         long current = page.getCurrent();

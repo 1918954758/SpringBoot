@@ -70,6 +70,7 @@
                                         <th name="name">姓名</th>
                                         <th name="email">邮箱</th>
                                         <th name="age">年龄</th>
+                                        <th>操作</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -79,6 +80,9 @@
                                         <td th:text="${user.name}">Win 95+</td>
                                         <td th:text="${user.email}">4</td>
                                         <td class="center hidden-phone">[[${user.age}]]</td>
+                                        <td>
+                                            <button class="btn btn-default btn-sm" type="button"><font style="color: #59ce1b">Delete</font></button>
+                                        </td>
                                     </tr>
                                     </tbody>
                                     <tfoot>
@@ -94,11 +98,16 @@
                                     <div class="span6">
                                         <div class="dataTables_paginate paging_bootstrap pagination">
                                             <ul>
-                                                <li class="prev disabled"><a href="#">← 前一页</a></li>
-                                                <li th:class="${pages.current == num ? 'active' : ''}" th:each="num:${#numbers.sequence(1, pages.pages)}">
-                                                    <a href="#" th:href="@{/dynamic_table(currentPage=${num})}">[[${num}]]</a>
+
+                                                <li class="prev disabled">
+                                                    <a href="#" th:href="@{/dynamic_table(currentPage=${1})}">← 前一页</a>
                                                 </li>
-                                                <li class="next disabled"><a href="#">后一页 → </a></li>
+                                                <li th:class="${pages.current == num ? 'active' : ''}" th:each="num:${#numbers.sequence(1, pages.pages)}">
+                                                    <a id="aid" href="#" th:href="@{/dynamic_table(currentPage=${num})}" th:text="${num}"><!--[[${num}]]--></a>
+                                                </li>
+                                                <li class="next disabled">
+                                                    <a href="#" th:href="@{/dynamic_table(currentPage=${2})}">后一页 → </a>
+                                                </li>
                                             </ul>
                                         </div>
                                     </div>
