@@ -33,7 +33,7 @@
 
 - 页面使用三元表达式，实现分页按钮高亮展示
 ```html
-<li th:class="当前页 == 分页按钮显示页 ? active : ''"> Dynamic Table </li>
+<li th:class="当前页 == 分页按钮显示页 ? 'active' : ''"> Dynamic Table </li>
 ```
 
 - 实现分页小工具，数字序列
