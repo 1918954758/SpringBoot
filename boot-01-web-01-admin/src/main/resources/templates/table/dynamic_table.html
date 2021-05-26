@@ -81,7 +81,8 @@
                                         <td th:text="${user.email}">4</td>
                                         <td class="center hidden-phone">[[${user.age}]]</td>
                                         <td>
-                                            <a th:href="@{/delete/user/{id}/{currentPage}(id=${user.id}, currentPage=${pages.current})}" class="btn btn-danger btn-sm" type="button">Delete</a>
+                                            <!--<a th:href="@{/delete/user/{id}/{currentPage}(id=${user.id}, currentPage=${pages.current})}" class="btn btn-danger btn-sm" type="button">Delete</a>-->
+                                            <a th:href="@{/delete/user(id=${user.id}, currentPage=${pages.current})}" class="btn btn-danger btn-sm" type="button">Delete</a>
                                         </td>
                                     </tr>
                                     </tbody>

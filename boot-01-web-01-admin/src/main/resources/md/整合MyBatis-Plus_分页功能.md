@@ -205,3 +205,59 @@ public class TableController {
 ```
 
 ## 3. 用户删除功能
+```java
+@Controller
+@Slf4j
+public class TableController {
+
+    @Autowired
+    private UserService userService;
+
+    /**
+     * 使用请求路径参数的方式获取用户ID和当前页数
+     * @param id
+     * @param currentPage
+     * @param redirectAttributes
+     * @return
+     */
+    @GetMapping("/delete/user/{id}/{currentPage}")
+    public String deleteUser(@PathVariable("id") Long id, @PathVariable("currentPage") Integer currentPage, RedirectAttributes redirectAttributes) {
+        userService.removeById(id);
+        redirectAttributes.addAttribute("currentPage", currentPage);
+        return "redirect:/dynamic_table";
+    }
+
+    /**'
+     * 使用请求参数的方式获取用户ID和当前页数
+     * @param id
+     * @param currentPage
+     * @param redirectAttributes
+     * @return
+     */
+    @GetMapping("/delete/user")
+    public String deleteUser(@RequestParam("id") Long id, @RequestParam("currentPage") Integer currentPage, RedirectAttributes redirectAttributes) {
+        userService.removeById(id);
+        redirectAttributes.addAttribute("currentPage", currentPage);
+        return "redirect:/dynamic_table";
+    }
+}
+```
+- 注意，当点击删除按钮的时候，需要重定向到当前页面当前页数的位置
+- 我们可以使用 RedirectAttributes.java 来实现参数的拼接
+    - return "redirect:/dynamic_table";
+    - 底层: /dynamic_table?currentPage=currentPage
+```html
+<tr class="gradeX" th:each="user,stat:${pages.records}">
+    <td th:text="${stat.count}">Trident</td>
+    <td th:text="${user.id}">Internet Explorer 4.0</td>
+    <td th:text="${user.name}">Win 95+</td>
+    <td th:text="${user.email}">4</td>
+    <td class="center hidden-phone">[[${user.age}]]</td>
+    <td>
+        <!-- 使用请求参数路径的方式获取用户ID和当前页数 -->
+        <a th:href="@{/delete/user/{id}/{currentPage}(id=${user.id}, currentPage=${pages.current})}" class="btn btn-danger btn-sm" type="button">Delete</a>
+        <!-- 使用请求参数的方式获取用户ID和当前页数 -->
+        <a th:href="@{/delete/user(id=${user.id}, currentPage=${pages.current})}" class="btn btn-danger btn-sm" type="button">Delete</a>
+    </td>
+</tr>
+```

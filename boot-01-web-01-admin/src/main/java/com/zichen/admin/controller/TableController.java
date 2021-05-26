@@ -32,8 +32,14 @@ public class TableController {
     }
     //templates/table/basic_table.html
 
-    @GetMapping("/delete/user/{id}/{currentPage}")
+    /*@GetMapping("/delete/user/{id}/{currentPage}")
     public String deleteUser(@PathVariable("id") Long id, @PathVariable("currentPage") Integer currentPage, RedirectAttributes redirectAttributes) {
+        userService.removeById(id);
+        redirectAttributes.addAttribute("currentPage", currentPage);
+        return "redirect:/dynamic_table";
+    }*/
+    @GetMapping("/delete/user")
+    public String deleteUser(@RequestParam("id") Long id, @RequestParam("currentPage") Integer currentPage, RedirectAttributes redirectAttributes) {
         userService.removeById(id);
         redirectAttributes.addAttribute("currentPage", currentPage);
         return "redirect:/dynamic_table";
