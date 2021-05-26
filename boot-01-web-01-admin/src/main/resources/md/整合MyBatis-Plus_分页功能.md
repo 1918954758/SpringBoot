@@ -245,7 +245,7 @@ public class TableController {
 - 注意，当点击删除按钮的时候，需要重定向到当前页面当前页数的位置
 - 我们可以使用 RedirectAttributes.java 来实现参数的拼接
     - return "redirect:/dynamic_table";
-    - 底层: /dynamic_table?currentPage=currentPage
+    - 底层拼接: /dynamic_table?currentPage=currentPage
 ```html
 <tr class="gradeX" th:each="user,stat:${pages.records}">
     <td th:text="${stat.count}">Trident</td>
