@@ -28,6 +28,9 @@ public class IndexController {
      */
     @PostMapping("/login")
     public String index4Page(User user, HttpSession session, Model model) {
+        //免密登录
+        user.setUserName("zhangsan");
+        user.setPassWord("123456");
         if (Validate.validatelogin(session, user, model)) {
             // 防止表单重复提交
             return "redirect:/main.html";

@@ -45,3 +45,75 @@
 ${#numbers.sequence(from,to)}
 ${#numbers.sequence(from,to,step)}
 ```
+
+- 发送请求，请求路径获取参数
+```java
+public class TableController {
+    /**
+     * 请求路径上获取参数   /delete/user/{1}
+     * 此时没有请求名
+     * @param id
+     * @return
+     */
+    @GetMapping("/delete/user/{id}/{currentPage}")
+    public String deleteUser(@PathVariable("id") Long id, @PathVariable("currentPage") Integer currentPage, RedirectAttributes redirectAttributes) {
+        userService.removeById(id);
+        redirectAttributes.addAttribute("currentPage", currentPage);
+        return "redirect:/dynamic_table";
+    }
+}
+```
+```html
+<!-- 请求路径放置参数 圆括号后面制定参数名以及参数从哪里获取 -->
+<a th:href = "@{/delete/user/{id}(id=${user.id}, currentPage=${pages.current})}" type="btn btn-danger btn-sm" type = "button">Delete</a>
+```
+
+- 对比请求参数，请求路径参数差异
+  
+- 请求参数
+```java
+import org.springframework.web.bind.annotation.RequestParam;
+
+public class TableController {
+    /**
+     * 请求路径参数：/delete/user?id=1&currentPage=3
+     * @param id
+     * @param currentPage
+     * @param redirectAttributes
+     * @return
+     */
+    @GetMapping("/delete/user")
+    public String deleteUser(@RequestParam("id") Long id, @RequestParam("currentPage") Integer currentPage, RedirectAttributes redirectAttributes) {
+        userService.removeById(id);
+        redirectAttributes.addAttribute("currentPage", currentPage);
+        return "redirect:/dynamic_table";
+    }
+}
+```
+```html
+<a th:href = "@{/delete/user(id=${user.id}, currentPage=${pages.current})}" type="btn btn-danger btn-sm" type = "button">Delete</a>
+```
+
+- 请求路径参数
+```java
+import org.springframework.web.bind.annotation.RequestParam;
+
+public class TableController {
+    /**
+     * 请求路径参数：/delete/user?id=1&currentPage=3
+     * @param id
+     * @param currentPage
+     * @param redirectAttributes
+     * @return
+     */
+    @GetMapping("/delete/user/{id}/{currentPage}")
+    public String deleteUser(@RequestParam("id") Long id, @RequestParam("currentPage") Integer currentPage, RedirectAttributes redirectAttributes) {
+        userService.removeById(id);
+        redirectAttributes.addAttribute("currentPage", currentPage);
+        return "redirect:/dynamic_table";
+    }
+}
+```
+```html
+<a th:href = "@{/delete/user/{id}/{currentPage}(id=${user.id}, currentPage=${pages.current})}" type="btn btn-danger btn-sm" type = "button">Delete</a>
+```

@@ -76,7 +76,7 @@ public class TableController {
 </table>
 ```
 
-## 1. 动态展示查询到的数据（分页展示）
+## 2. 动态展示查询到的数据（分页展示）
 - Mybatis-Plus实现分页查询，需要使用官方提供的插件
 
 ```java
@@ -203,3 +203,5 @@ public class TableController {
     </div>
 </div>
 ```
+
+## 3. 用户删除功能
