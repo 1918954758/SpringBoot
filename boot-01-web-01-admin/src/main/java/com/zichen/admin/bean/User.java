@@ -15,6 +15,8 @@ public class User {
     private String userName;
     @TableField(exist = false)
     private String passWord;
+    @TableField(exist = false)
+    private Integer cpId;
 
     private Long id;
     private String name;

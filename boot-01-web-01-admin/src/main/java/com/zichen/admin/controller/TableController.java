@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -31,6 +32,13 @@ public class TableController {
         return "table/basic_table";
     }
     //templates/table/basic_table.html
+
+    @PostMapping("/add/user")
+    public String deleteUser(User user, RedirectAttributes redirectAttributes) {
+        userService.save(user);
+        redirectAttributes.addAttribute("currentPage", user.getCpId());
+        return "redirect:/dynamic_table";
+    }
 
     /*@GetMapping("/delete/user/{id}/{currentPage}")
     public String deleteUser(@PathVariable("id") Long id, @PathVariable("currentPage") Integer currentPage, RedirectAttributes redirectAttributes) {
