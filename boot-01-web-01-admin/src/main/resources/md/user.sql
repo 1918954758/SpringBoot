@@ -9,6 +9,15 @@ CREATE TABLE user
     PRIMARY KEY (id)
 );
 
+
+CREATE TABLE testdb.`user`
+(
+    `id` BIGINT(20) primary key not null auto_increment COMMENT '主键ID',
+    `name` VARCHAR(30) NULL DEFAULT NULL COMMENT '姓名',
+    `age` INT(11) NULL DEFAULT NULL COMMENT '年龄',
+    `email` VARCHAR(50) NULL DEFAULT NULL COMMENT '邮箱'
+)ENGINE=InnoDB CHARSET=utf8;
+
 DELETE FROM user;
 
 INSERT INTO user (id, name, age, email) VALUES

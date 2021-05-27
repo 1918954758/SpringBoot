@@ -86,7 +86,7 @@
                                         <td>
                                             <!--<a th:onclick="'javascript:addUser(' + ${pages.current} + ')'" class="btn btn-primary btn-sm">新增用户</a>-->
                                             <a th:onclick="addUser([[${pages.current}]])" class="btn btn-primary btn-sm">新增用户</a>
-                                            <a class="btn btn-default btn-sm">更新用户</a>
+                                            <a th:onclick="updateUser([[${pages.current}]], [[${user.id}]], [[${user.name}]], [[${user.age}]], [[${user.email}]])" class="btn btn-default btn-sm">更新用户</a>
                                             <!--<a th:href="@{/delete/user/{id}/{currentPage}(id=${user.id}, currentPage=${pages.current})}" class="btn btn-danger btn-sm" type="button">Delete</a>-->
                                             <a th:href="@{/delete/user(id=${user.id}, currentPage=${pages.current})}" class="btn btn-danger btn-sm" type="button">Delete</a>
                                         </td>
@@ -172,21 +172,41 @@
     <!-- main content end-->
 </section>
 
+<!-- addUser -->
 <div name="panelAddUserName" id="panelAddUserId" class="white_content" style="display: none"><br>
-    <input type="hidden" name="currentPageName" id="currentPageId"/>
+    <input type="hidden" name="addCurrentPageName" id="addCurrentPageId"/>
     <form name="panelAddUserName4Form" id="panelAddUserId4Form">
-        姓名：<input type="input" id="name" class="form-control" placeholder="姓名" autofocus>
-        年龄：<input type="input" id="age" class="form-control" placeholder="年龄"/>
-        邮箱：<input type="input" id="email" class="form-control" placeholder="邮箱"/>
+        姓名：<input type="input" id="addName" class="form-control" placeholder="姓名" autofocus/>
+        年龄：<input type="input" id="addAge" class="form-control" placeholder="年龄"/>
+        邮箱：<input type="input" id="addEmail" class="form-control" placeholder="邮箱"/>
         <br/>
         <div>
-            <button class="glyphicon glyphicon-ok" th:onclick="addUserSubmit()" type="submit">确认</button>
+            <button class="glyphicon glyphicon-ok" th:onclick="addUserSubmit()" type="submit">添加</button>
             <button class="glyphicon glyphicon-remove" onclick="cancelAddUser()">取消</button>
         </div>
         <!-- http://v3.bootcss.com/getting-started/#download -->
     </form>
 </div>
-<div id="fade" class="black_overlay" style="display: none"></div>
+<div id="addFade" class="black_overlay" style="display: none"></div>
+
+<!-- updateUser -->
+<div name="panelUpdateUserName" id="panelUpdateUserId" class="white_content" style="display: none"><br>
+    <input type="hidden" name="updateCurrentPageName" id="updateCurrentPageId"/>
+    <form name="panelAddUserName4Form" id="panelUpdateUserId4Form">
+        id：<input type="input" id="updateId" class="form-control" placeholder="id" readonly="readonly"/><br/>
+        姓名：<input type="input" id="updateName" class="form-control" placeholder="姓名"/><br/>
+        年龄：<input type="input" id="updateAge" class="form-control" placeholder="年龄"/><br/>
+        邮箱：<input type="input" id="updateEmail" class="form-control" placeholder="邮箱"/><br/>
+        <br/>
+        <div>
+            <button class="glyphicon glyphicon-ok" th:onclick="updateUserSubmit()" type="submit">更新</button>
+            <button class="glyphicon glyphicon-remove" onclick="cancelAddUser()">取消</button>
+        </div>
+        <!-- http://v3.bootcss.com/getting-started/#download -->
+    </form>
+</div>
+<div id="updateFade" class="black_overlay" style="display: none"></div>
+
 
 <!-- Placed js at the end of the document so the pages load faster -->
 <div th:include="common/commons :: commonScript"></div>

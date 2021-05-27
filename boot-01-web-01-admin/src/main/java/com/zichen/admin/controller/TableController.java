@@ -34,8 +34,15 @@ public class TableController {
     //templates/table/basic_table.html
 
     @PostMapping("/add/user")
-    public String deleteUser(User user, RedirectAttributes redirectAttributes) {
+    public String addUser(User user, RedirectAttributes redirectAttributes) {
         userService.save(user);
+        redirectAttributes.addAttribute("currentPage", user.getCurrentPage());
+        return "redirect:/dynamic_table";
+    }
+
+    @PostMapping("/update/user")
+    public String updateUser(User user, RedirectAttributes redirectAttributes) {
+        userService.updateById(user);
         redirectAttributes.addAttribute("currentPage", user.getCurrentPage());
         return "redirect:/dynamic_table";
     }

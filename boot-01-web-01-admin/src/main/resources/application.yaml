@@ -79,3 +79,6 @@ mybatis-plus:
   type-aliases-package: com.zichen.admin.bean
   configuration:
     map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
