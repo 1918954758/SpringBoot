@@ -16,7 +16,7 @@ public class User {
     @TableField(exist = false)
     private String passWord;
     @TableField(exist = false)
-    private Integer cpId;
+    private Integer currentPage;
 
     private Long id;
     private String name;

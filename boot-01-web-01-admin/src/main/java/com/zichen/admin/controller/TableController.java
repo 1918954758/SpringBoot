@@ -36,7 +36,7 @@ public class TableController {
     @PostMapping("/add/user")
     public String deleteUser(User user, RedirectAttributes redirectAttributes) {
         userService.save(user);
-        redirectAttributes.addAttribute("currentPage", user.getCpId());
+        redirectAttributes.addAttribute("currentPage", user.getCurrentPage());
         return "redirect:/dynamic_table";
     }
 
