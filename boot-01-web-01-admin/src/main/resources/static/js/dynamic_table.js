@@ -4,7 +4,7 @@ function addUser(obj) {
     document.getElementById('addCurrentPageId').value = obj;
 }
 
-function cancelAddUser() {
+function cancelAddOrUpdateUser() {
     document.getElementById('panelAddUserId').style.display='none';
     document.getElementById('addFade').style.display='none';
 }
@@ -39,8 +39,11 @@ function addUserSubmit(obj) {
             "email": email,
             "currentPage": currentPage
         },
-        dateType: "text",
+        dataType: "text",
         success: function (json){
+
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
 
         }
     });
@@ -64,8 +67,11 @@ function updateUserSubmit(obj) {
             "email": email,
             "currentPage": currentPage
         },
-        dateType: "text",
+        dataType: "text",
         success: function (json) {
+
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
 
         }
     });
