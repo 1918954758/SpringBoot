@@ -6,11 +6,14 @@ function ajaxGet(o) {
         type: "get",
         url: "/test/ajax_get?id=" + id + "&name=" + name + "&page=" + page,
         dataType: "json",
-        success: function (json) {
-            console.log("success");
+        success: function (data) {
+            console.log("success = " + data.zichen);
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
-            console.log("error");
+            var readyState = XMLHttpRequest.readyState;
+            var status = XMLHttpRequest.status;
+            console.log(readyState);
+            console.log(status);
         }
     });
 }
@@ -29,8 +32,8 @@ function ajaxPost(o) {
             "page": page
         },
         dataType: "json",
-        success: function (json) {
-
+        success: function (data) {
+            console.log("success = " + data.zichen);
         }
     });
 }

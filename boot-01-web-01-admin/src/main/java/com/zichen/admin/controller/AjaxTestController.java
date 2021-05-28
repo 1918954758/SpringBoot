@@ -6,6 +6,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import sun.nio.cs.ext.MacHebrew;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * class: AjaxTest
@@ -25,10 +29,13 @@ public class AjaxTestController {
      */
     @ResponseBody
     @GetMapping("/test/ajax_get")
-    public void ajaxGetTest(@RequestParam("id") Integer id,
-                           @RequestParam("name") String name,
-                           @RequestParam("page") Integer page) {
+    public Map<String, Object> ajaxGetTest(@RequestParam("id") Integer id,
+                                           @RequestParam("name") String name,
+                                           @RequestParam("page") Integer page) {
         log.info("GET请求获取到的参数信息：【{}, {}, {}】", id, name, page);
+        Map<String, Object> map = new HashMap<>();
+        map.put("zichen", "success");
+        return map;
     }
 
     /**
@@ -39,10 +46,13 @@ public class AjaxTestController {
      */
     @ResponseBody
     @PostMapping("/test/ajax_post")
-    public void ajaxPostTest(@RequestParam("id") Integer id,
-                             @RequestParam("name") String name,
-                             @RequestParam("page") Integer page) {
+    public Map<String, Object> ajaxPostTest(@RequestParam("id") Integer id,
+                                            @RequestParam("name") String name,
+                                            @RequestParam("page") Integer page) {
         log.info("POST请求获取到的参数信息：【{}, {}, {}】", id, name, page);
+        Map<String, Object> map = new HashMap<>();
+        map.put("zichen", "success");
+        return map;
     }
 
     /**
