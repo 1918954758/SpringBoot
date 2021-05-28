@@ -27,6 +27,20 @@ INSERT INTO user (id, name, age, email) VALUES
 (4, 'Sandy', 21, 'test4@baomidou.com'),
 (5, 'Billie', 24, 'test5@baomidou.com');
 
+INSERT INTO user (id, name, age, email) VALUES
+(null, 'Jone', 18, 'test1@baomidou.com'),
+(null, 'Jack', 20, 'test2@baomidou.com'),
+(null, 'Tom', 28, 'test3@baomidou.com'),
+(null, 'Sandy', 21, 'test4@baomidou.com'),
+(null, 'Billie', 23, 'test5@baomidou.com'),
+(null, 'Filip', 24, 'test6@baomidou.com'),
+(null, 'Asckeyi', 26, 'test7@baomidou.com'),
+(null, 'Cicco', 27, 'test8@baomidou.com'),
+(null, 'Pilisdect', 22, 'test9@baomidou.com'),
+(null, 'Cedadti', 27, 'test10@baomidou.com'),
+(null, 'Wilii', 23, 'test11@baomidou.com'),
+(null, 'Quoo', 21, 'test12@baomidou.com');
+
 
 
 -- 给已存在字段设置自增属性
