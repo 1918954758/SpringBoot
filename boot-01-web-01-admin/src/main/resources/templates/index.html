@@ -86,8 +86,8 @@
                                     <i class="fa fa-gavel"></i>
                                 </div>
                                 <div class="state-value">
-                                    <div class="value">230</div>
-                                    <div class="title">New Order</div>
+                                    <div class="value" th:text="${main_count}">230</div>
+                                    <div class="title">访问主页次数</div>
                                 </div>
                             </div>
                         </div>
@@ -97,8 +97,8 @@
                                     <i class="fa fa-tags"></i>
                                 </div>
                                 <div class="state-value">
-                                    <div class="value">3490</div>
-                                    <div class="title">Copy Sold</div>
+                                    <div class="value" th:text="${dynamic_table_count}">3490</div>
+                                    <div class="title">访问动态表格次数</div>
                                 </div>
                             </div>
                         </div>
@@ -110,8 +110,8 @@
                                     <i class="fa fa-money"></i>
                                 </div>
                                 <div class="state-value">
-                                    <div class="value">22020</div>
-                                    <div class="title"> Total Revenue</div>
+                                    <div class="value" th:text="${jump_to_ajax_count}">22020</div>
+                                    <div class="title">ajax请求页被访问次数</div>
                                 </div>
                             </div>
                         </div>
@@ -121,8 +121,8 @@
                                     <i class="fa fa-eye"></i>
                                 </div>
                                 <div class="state-value">
-                                    <div class="value">390</div>
-                                    <div class="title"> Unique Visitors</div>
+                                    <div class="value" th:text="${basic_table_count}">390</div>
+                                    <div class="title">基本表被访问次数</div>
                                 </div>
                             </div>
                         </div>

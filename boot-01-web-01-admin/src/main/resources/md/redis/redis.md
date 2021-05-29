@@ -37,7 +37,7 @@
 > /usr/local/redis/bin/redis-server 或者 ./redis-server
 
 ## 7. 看到以下截图，表示安装成功
-![image-测试redis安装成功截图](../image/测试redis安装成功截图.png)
+![image-测试redis安装成功截图](../../image/测试redis安装成功截图.png)
 
 # 2. 后台启动redis
 ## 1. 赋值redis配置文件到bin目录
@@ -191,7 +191,7 @@
 > C:\Users\Administrator>
 
 - 说明 CentOS的6379端口没有开启
-# 5. 去Linux中开启6379
+# 6. 去Linux中开启6379
 ## 1. 输入firewall-cmd --query-port=6379/tcp，如果返回结果为no，那么证明6379端口确实没有开启
 > [root@bogon bin]# firewall-cmd --query-port=6379/tcp
 > 
@@ -255,7 +255,7 @@
 到此，redis安装、编译、生成启动命令（bin下）、设置密码、开放6379端口，全都设置完毕
 ----
 
-# 6. 通过Redis Desktop Manager连接Redis
+# 7. 通过Redis Desktop Manager连接Redis
 ## 1. 查看redis名称
 > [root@bogon bin]# ./redis-cli
 > 
@@ -271,7 +271,7 @@
 
 - 新安装的redis是没有名称的，故此返回空
 
-## 2. 设置名字
+## 2. 设置redis名字（重启redis会失效）
 > 127.0.0.1:6379> client setname redis
 > 
 > OK
@@ -281,6 +281,9 @@
 > "redis"
 > 
 > 127.0.0.1:6379> 
+
+## 3. 设置redis名字（重启redis不会失效）
+**> 暂时还不知道如何修改**
 
 ## 3. 连接redis
 > Name : redis
@@ -295,7 +298,7 @@
 > 
 > Successful connection to redis-server
 
-# 7. 以后连接，如果连接不上，记得关闭防火墙
+# 8. 以后连接，如果连接不上，记得关闭防火墙
 > systemctl stop firewalld
 > 
 > systemctl start firewalld

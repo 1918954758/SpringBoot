@@ -3,6 +3,10 @@ package com.zichen.admin.controller;
 import com.zichen.admin.bean.User;
 import com.zichen.admin.util.Validate;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -69,9 +73,22 @@ public class IndexController {
 
     // 刷新页面执行该方法，而不是重复提交POST，调用/index请求
     @GetMapping("/main.html")
-    public String indexPage() {
+    public String indexPage(HttpSession session, Model model) {
         log.info("indexPage 执行");
+
+        // 操作redis，获取数据 放到Model中
+        ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
+        String s = opsForValue.get("/main.html");
+        String s1 = opsForValue.get("/dynamic_table");
+        String s2 = opsForValue.get("/jump_to_ajax");
+        String s3 = opsForValue.get("/basic_table");
+        model.addAttribute("main_count", s);
+        model.addAttribute("dynamic_table_count", s1);
+        model.addAttribute("jump_to_ajax_count", s2);
+        model.addAttribute("basic_table_count", s3);
         return "index";
     }
 
+    @Autowired
+    StringRedisTemplate redisTemplate;
 }

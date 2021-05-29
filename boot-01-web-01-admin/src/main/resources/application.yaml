@@ -52,10 +52,20 @@ spring:
       #或者<IP>/<SUB_NET_MASK_size>其中128.242.127.1/24
       #24表示，前面24位是子网掩码，比对的时候，前面24位相同就匹配,不支持IPV6。
   #开启mvc _method方法
+
 #  mvc:
 #    hiddenmethod:
 #      filter:
 #        enabled: true
+
+  # redis://user:password@example.com:6379
+  redis:
+    host: 192.168.60.128
+    port: 6379
+    password: 123456
+    client-type: jedis
+    #client-type: lettuce
+  #url: redis://redis:123456@192.168.60.128:6379
 
 # 使用默认配置的aop功能，druid的spring监控功能是空白
 # 自己重写aop配置类，结果是可以的
@@ -82,3 +92,4 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
+
