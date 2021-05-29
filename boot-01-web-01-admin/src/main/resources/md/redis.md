@@ -9,7 +9,7 @@
 ## 3. 进入 redis-6.2.3
 > cd redis-6.2.3/
 
-## 4. 编译redis
+## 4. 编译redis（可以和第5不一起来做  meke PREFIX=/usr/local/redis install）
 > make
 
 ## 5. 编译后可以得到服务端和客户端的可执行文件,但是这些文件就位于源码目录中,不方便使用,所以我们可以使用install命令将可执行文件安装至指定的目录下;
@@ -74,6 +74,33 @@
 > 
 > zichen     8731   3423  0 01:47 pts/0    00:00:00 grep --color=auto redis
 
+## 7. redis 停止命令
+> ./redis-cli shutdown
+
+
+## 8. 远程连接redis
+> ./redis-cli -h ip -p 6379
+> 本地连接redis ./redis-cli
+
+## 8. 查看redis进程
+> redis未启动进程状态
+> 
+> [root@bogon bin]# ps -ef | grep redis
+> 
+> root       3173   3089  0 12:04 pts/0    00:00:00 grep --color=auto redis
+> 
+> redis启动后进程状态
+> 
+> [root@bogon bin]# ./redis-server redis.conf
+> 
+> [root@bogon bin]# ps -ef| grep redis
+> 
+> root       3186      1  0 12:04 ?        00:00:00 ./redis-server *:6379
+> 
+> root       3228   3089  0 12:04 pts/0    00:00:00 grep --color=auto redis
+> 
+> [root@bogon bin]#
+
 # 3. linux中连接redis
 ## 1. 进入bin
 > cd /usr/local/redis/bin
@@ -86,7 +113,7 @@
 > 
 > 127.0.0.1:6379> 
 
-# 4. 给redis设置密码，以供连接
+# 4. 给redis设置密码，以供连接（重启redis密码失效）
 > [zichen@bogon bin]$ ./redis-cli
 > 
 > 127.0.0.1:6379> config set requirepass 123456
@@ -96,7 +123,13 @@
 - 退出
 > 127.0.0.1:6379> quit
 
-- 通过auth加密码命令登录，返回OK
+## 1. 给redis设置密码，重启redis密码不会失效
+> vim /usr/local/redis/bin/redis.conf
+> 
+>-- # requirepass foobared 修改成requirepass 123456
+
+
+## 2. 通过auth加密码命令登录，返回OK
 > [zichen@bogon bin]$ ./redis-cli
 > 
 > 127.0.0.1:6379> auth 123456
@@ -107,7 +140,35 @@
 
 - 此时密码设置已经完成
 
-# 4. 确保6379端口堆外开放
+## 3. 验证密码是否设置成功
+> 启动redis
+> 
+> ./redis-server redis.conf
+> 
+> 进入客户端
+> 
+> ./redis-cli
+> 
+> 输入命令 config get requirepass 进行验证
+> 
+> 出现“(error) NOAUTH Authentication required.证明设置密码成功！
+> 
+> 输入密码 auth 123456 
+> 
+> 返回 ok
+> 
+> 证明设置成功
+> 
+> 再次输入 config get requirepass 即可看到自己设置的密码
+> 
+> 127.0.0.1:6379> config get requirepass
+> -1) "requirepass"
+> 
+> -2) "123456"
+> 
+> 127.0.0.1:6379>
+
+# 5. 确保6379端口堆外开放
 ## 1. 返回Windows测试6379是否连通
 > Linux中查看地址
 > 
