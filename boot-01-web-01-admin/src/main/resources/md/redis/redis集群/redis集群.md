@@ -1,4 +1,4 @@
-# 1. Redis 集群
+# 1. Redis 集群（redis-6.2.3）
 > redis-5.0.0 以后集群搭建不需要ruby来支持
 > redis-5.0.0 之前集群搭建需要ruby支持
 
