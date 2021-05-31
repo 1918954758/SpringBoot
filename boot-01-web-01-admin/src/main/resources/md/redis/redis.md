@@ -12,6 +12,12 @@
 ## 4. 编译redis（可以和第5不一起来做  meke PREFIX=/usr/local/redis install）
 > make
 
+- 如果make执行报错，检查是否安装了c++编译器
+> yum -y install gcc-c++
+
+- 安装完成后，make clean
+- make
+
 ## 5. 编译后可以得到服务端和客户端的可执行文件,但是这些文件就位于源码目录中,不方便使用,所以我们可以使用install命令将可执行文件安装至指定的目录下;
 > cd /usr/local/redis/redis-6.2.3
 > 
