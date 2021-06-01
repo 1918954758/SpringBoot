@@ -34,8 +34,3 @@ SpringBoot
 
 - 笔记做的比较详细，最好结合代码理解会更好
 
-
-学习资源出处：
-      
-      - B站 雷丰阳
-      - URL：https://www.bilibili.com/video/BV19K4y1L7MT?p=1
