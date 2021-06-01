@@ -151,3 +151,78 @@ public class IndexController {
 
 ## 4. 查看结果
 ![image-redis计数页面访问次数结果图片](image/redis计数页面访问次数结果图片.png)
+
+# 3. 读取Redis数据问题
+- 总结
+  - 1. RedisTemplate使用的序列类在在操作数据的时候，比如说存入数据会将数据先序列化成字节数组然后在存入Redis数据库，这个时候打开Redis查看的时候，你会看到你的数据不是以可读的形式展现的，而是以字节数组显示
+  - 2. 当然从Redis获取数据的时候也会默认将数据当做字节数组转化,这样就会导致一个问题，当需要获取的数据不是以字节数组存在redis当中而是正常的可读的字符串的时候
+  - 3. 当Redis当中的数据值是以可读的形式显示出来的时候，只能使用StringRedisTemplate才能获取到里面的数据。
+  - 4. 所以当你使用RedisTemplate获取不到数据的时候请检查一下是不是Redis里面的数据是可读形式而非字节数组,RedisTemplate就无法获取导数据，这个时候获取到的值就是NULL。这个时候StringRedisTempate就派上了用场。
+  
+```shell
+[zichen@bogon bin]$ ./redis-cli
+127.0.0.1:6379> auth 123456
+OK
+127.0.0.1:6379> keys *
+1) "key2"
+2) "key1"
+127.0.0.1:6379>
+```
+```java
+@Slf4j
+@SpringBootTest
+public class ConnectRedisTest {
+  @Test
+  public void redisConnectionTest() {
+    ValueOperations<Object, Object> operations = redisTemplates.opsForValue();
+    //ValueOperations<String, String> stringStringValueOperations = redisTemplate.opsForValue();
+    //String key1 = stringStringValueOperations.get("key1");
+    //String key2 = stringStringValueOperations.get("key2");
+    Object key1 = operations.get("key1");
+    Object key2 = operations.get("key2");
+    log.info("key1 【{}】 | key2 【{}】", key1 ,key2);
+    //2021-06-01 17:03:49.052  INFO 6524 --- [           main] com.zichen.admin.ConnectRedisTest        : key1 【null】 | key2 【null】
+  }
+}
+```
+```java
+@Slf4j
+@SpringBootTest
+public class ConnectRedisTest {
+  @Test
+  public void redisConnectionTest() {
+    //ValueOperations<Object, Object> operations = redisTemplates.opsForValue();
+    ValueOperations<String, String> stringStringValueOperations = redisTemplate.opsForValue();
+    String key1 = stringStringValueOperations.get("key1");
+    String key2 = stringStringValueOperations.get("key2");
+    log.info("key1 【{}】 | key2 【{}】", key1 ,key2);
+    
+    //2021-06-01 17:02:20.442  INFO 9172 --- [           main] com.zichen.admin.ConnectRedisTest        : key1 【123】 | key2 【456】
+  }
+}
+```
+
+- 测试RedisTemplate
+```java
+@Slf4j
+@SpringBootTest
+public class ConnectRedisTest {
+  @Test
+  public void redisTemplateTest() {
+    ValueOperations<Object, Object> operations = redisTemplate.opsForValue();
+    operations.set("binary1", "123456");
+
+    Object binary1 = operations.get("binary1");
+    log.info("binary1 = 【{}】", binary1);
+    //2021-06-01 17:07:39.986  INFO 4336 --- [           main] com.zichen.admin.ConnectRedisTest        : binary1 = 【123456】
+  }
+}
+```
+
+```shell
+127.0.0.1:6379> keys *
+1) "key2"
+2) "\xac\xed\x00\x05t\x00\abinary1"
+3) "key1"
+127.0.0.1:6379>
+```

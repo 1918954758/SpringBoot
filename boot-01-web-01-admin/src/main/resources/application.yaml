@@ -65,6 +65,15 @@ spring:
     password: 123456
     client-type: jedis
     #client-type: lettuce
+    # jedis-pool config
+    jedis:
+      pool:
+        max-active: 10
+        max-idle: 8
+        min-idle: 0
+        max-wait: 60s
+    #connect-timeout: 3600
+
   #url: redis://redis:123456@192.168.60.128:6379
 
 # 使用默认配置的aop功能，druid的spring监控功能是空白
@@ -92,4 +101,4 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
-
+debug: true
