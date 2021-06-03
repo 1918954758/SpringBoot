@@ -113,8 +113,14 @@ public class IdCardGenerator {
         for (int i = 0; i < 100; i++) {
             // System.out.print(IdcardUtils.validateCard(g.generate()));
             //System.out.print("\t");
-            System.out.print(g.generate(city, time));
-            System.out.print(", ");
+            String s = g.generate(city, time);
+            String[] split = s.split("");
+            if (Integer.valueOf(split[16]) % 2 == 0) {
+                System.out.print(s);
+                System.out.print(", ");
+            } else {
+                continue;
+            }
         }
     }
 
