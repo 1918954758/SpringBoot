@@ -1,4 +1,7 @@
-package com.zichen.admin.regexp;
+package com.zichen.regexp.regexp;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +13,7 @@ import java.util.regex.Pattern;
  * @date: 2021/6/5  13:06
  */
 public class RegExp_06 {
+    private final static Logger log = LoggerFactory.getLogger(RegExp_06.class);
     public static void main(String[] args) {
         String content = "11133344566534543";
         //String regex = ".+";//贪婪匹配   11133344566534543
@@ -17,6 +21,6 @@ public class RegExp_06 {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(content);
         boolean b = matcher.find();
-        System.out.println("" + (b == true ? matcher.group() : -1));
+        log.info("" + (b == true ? matcher.group() : -1));
     }
 }

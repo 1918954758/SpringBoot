@@ -1,4 +1,7 @@
-package com.zichen.admin.regexp;
+package com.zichen.regexp.regexp;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,13 +13,14 @@ import java.util.regex.Pattern;
  * @date: 2021/6/5  12:46
  */
 public class RegExp_04 {
+    private final static Logger log = LoggerFactory.getLogger(RegExp_04.class);
     public static void main(String[] args) {
         String content = "可以找到 Windows85中的Windows   Windows98中的Windows % Windows3.1  WindowsNT中的Windows  以及 Windows2000中的Windows，这四个";
         String regex = "Windows(?=85|98|NT|2000)";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(content);
         while (matcher.find()) {
-            System.out.println("找到： " + matcher.group());
+            log.info("找到： " + matcher.group());
         }
     }
 }

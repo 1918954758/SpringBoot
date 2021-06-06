@@ -1,10 +1,9 @@
-package com.zichen.admin;
+package com.zichen.regexp.regexpTest;
 
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.beans.Transient;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,11 +13,10 @@ import java.util.regex.Pattern;
  * @author: zichen
  * @date: 2021/6/6  0:34
  */
-@Slf4j
-@SpringBootTest
+
 public class RegExpTest {
 
-
+    private final static Logger log = LoggerFactory.getLogger(RegExpTest.class);
     //===================== split =====================
     /**
      * 对字符串“张三@@@李四@@王五@茅台”进行切割，去掉@符号。
@@ -28,7 +26,7 @@ public class RegExpTest {
         String content = "张三@@@李四@@王五@茅台";
         String[] s = content.split("@+");
         for (String s1 : s) {
-            System.out.println(s1);
+            log.info(s1);
         }
     }
 
@@ -42,7 +40,7 @@ public class RegExpTest {
         //String[] split = content.split("(\\W)\\1+|(\\w)\\2+");
         String[] split = content.split("(.)\\1+");
         for (String s : split) {
-            System.out.println(s);
+            log.info(s);
         }
     }
 
@@ -56,7 +54,7 @@ public class RegExpTest {
     public void test03() {
         String content = "张三@@@李四YYY王五*****王尼玛";
         String s = content.replaceAll("(.)\\1+", "、");
-        System.out.println(s);
+        log.info(s);
     }
 
     /**
@@ -66,7 +64,7 @@ public class RegExpTest {
     public void test04() {
         String content = "张三@@@李四YYY王五*****王尼玛";
         String $1 = content.replaceAll("(.)\\1+", "$1");
-        System.out.println($1);
+        log.info($1);
     }
 
     /**
@@ -78,7 +76,7 @@ public class RegExpTest {
         Pattern compile = Pattern.compile("\\b[\\w]{2}\\b");
         Matcher matcher = compile.matcher(content);
         while (matcher.find()) {
-            System.out.println(matcher.group());
+            log.info(matcher.group());
         }
     }
 
@@ -89,10 +87,10 @@ public class RegExpTest {
     public void test06() {
         String content = "我我我......我我......爱...爱爱...学...学......学编程";
         String s = content.replaceAll("[.]+", "");
-        System.out.println(s);
+        log.info(s);
         //我我我我我爱爱爱学学学编程
         String $1 = s.replaceAll("(.)\\1+", "$1");
-        System.out.println($1);
+        log.info($1);
     }
 
     /**
@@ -105,7 +103,7 @@ public class RegExpTest {
         Pattern compile = Pattern.compile(regex);
         Matcher matcher = compile.matcher(TXT.content);
         while (matcher.find()) {
-            System.out.println(matcher.group().replaceAll("url\\(|\\)", ""));
+            log.info(matcher.group().replaceAll("url\\(|\\)", ""));
         }
     }
 }

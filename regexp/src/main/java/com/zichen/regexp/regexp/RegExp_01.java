@@ -1,6 +1,7 @@
-package com.zichen.admin.regexp;
+package com.zichen.regexp.regexp;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,8 +12,8 @@ import java.util.regex.Pattern;
  * author: ~~~
  * date: 2021/6/3 - 13:41
  */
-@Slf4j
 public class RegExp_01 {
+    private final static Logger log = LoggerFactory.getLogger(RegExp_01.class);
     public static void main(String[] args) {
         String s1 = "sfrh\r24 gd35 P_dw\ned_fe3\t34";
         // 1. 匹配 \d \D \w \W \s \S

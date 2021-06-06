@@ -1,4 +1,7 @@
-package com.zichen.admin.regexp;
+package com.zichen.regexp.regexp;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,13 +13,14 @@ import java.util.regex.Pattern;
  * @date: 2021/6/5  14:44
  */
 public class RegExp_08 {
+    private final static Logger log = LoggerFactory.getLogger(RegExp_08.class);
     public static void main(String[] args) {
         String content = "12534321-33311155574333-33344466699913515411";
         String regex = "\\d{5}-(\\d)\\1{2}(\\d)\\2{2}(\\d)\\3{2}";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(content);
         while (matcher.find()) {
-            System.out.println("找到：" + matcher.group());
+            log.info("找到：" + matcher.group());
         }
     }
 }

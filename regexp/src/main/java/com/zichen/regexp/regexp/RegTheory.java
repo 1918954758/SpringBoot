@@ -1,4 +1,7 @@
-package com.zichen.admin.regexp;
+package com.zichen.regexp.regexp;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +13,7 @@ import java.util.regex.Pattern;
  * @date: 2021/6/4  23:22
  */
 public class RegTheory {
+    private static final Logger log = LoggerFactory.getLogger(RegExpTest.class);
     public static void main(String[] args) {
         String content = "1998年12月8日，第二代Java平台的企业版J2EE发布。1999年6月，Sun公司发布了第二代Java平" +
                 "台（简称为Java2）的3个版本：J2ME（Java2 Micro Edition，Java2平台的微型版），应用于移动、无" +
@@ -57,7 +61,7 @@ public class RegTheory {
          */
         // 4. 开始匹配
         while (matcher.find()) {
-            System.out.println("找到：" + matcher.group(0));
+            log.info("找到：" + matcher.group(0));
         }
 
 
@@ -100,7 +104,7 @@ public class RegTheory {
          */
         // 4. 开始匹配
         while (matcherGroup.find()) {
-            System.out.println("找到：" + matcherGroup.group(0));
+            log.info("找到：" + matcherGroup.group(0));
         }
     }
 
