@@ -1,11 +1,13 @@
 package com.zichen.boot.controller;
 
-import org.junit.Test;
+import com.zichen.boot.bean.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.testng.annotations.Test;
 
 /**
  * @name: HelloController
@@ -20,6 +22,15 @@ public class HelloController {
     @Value("${person.name:李四}")
     private String name;
 
+    @Autowired
+    private User user;
+
+    @Value("${JAVA_HOME}")
+    private String javaEnv;
+
+    @Value("${os.name}")
+    private String osName;
+
     @GetMapping("/")
     public String hello() {
         log.info("request into ...");
@@ -29,5 +40,22 @@ public class HelloController {
     @Test
     public void test() {
         log.info("fweqafdas");
+    }
+
+    @GetMapping("/getUser")
+    public User getUser() {
+        return user;
+    }
+
+
+    @GetMapping("/getJavaEnv")
+    public String getJavaEnv() {
+        return javaEnv;
+        //D:\software\jdk\jdk1.8\jdk\jdk1.8.0_131
+    }
+
+    @GetMapping("/getOsName")
+    public String getOsName() {
+        return osName;
     }
 }
