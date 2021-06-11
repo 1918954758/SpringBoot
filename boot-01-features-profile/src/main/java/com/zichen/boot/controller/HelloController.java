@@ -26,7 +26,10 @@ public class HelloController {
     private User user;
 
     @Value("${JAVA_HOME}")
-    private String javaEnv;
+    private String javaHome;
+
+    @Value("${MAVEN_HOME}")
+    private String mavenHome;
 
     @Value("${os.name}")
     private String osName;
@@ -48,10 +51,15 @@ public class HelloController {
     }
 
 
-    @GetMapping("/getJavaEnv")
-    public String getJavaEnv() {
-        return javaEnv;
+    @GetMapping("/getJavaHome")
+    public String getJavaHome() {
+        return javaHome;
         //D:\software\jdk\jdk1.8\jdk\jdk1.8.0_131
+    }
+
+    @GetMapping("/getMavenHome")
+    public String getMavenHome() {
+        return mavenHome;
     }
 
     @GetMapping("/getOsName")
