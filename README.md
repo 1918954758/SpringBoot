@@ -30,6 +30,7 @@ SpringBoot
 - SpringBoot整合Redis-6.2.3
 - Redis-6.2.3集群搭建详细步骤（亲测可行）
   - CentOS7
+- 自定义简单的starter
 - ...
 
 - 笔记做的比较详细，最好结合代码理解会更好
